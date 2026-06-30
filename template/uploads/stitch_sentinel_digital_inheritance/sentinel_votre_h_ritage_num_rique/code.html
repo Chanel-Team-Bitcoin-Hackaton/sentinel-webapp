@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinel | Héritage Numérique Sécurisé</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700&amp;family=Geist+Mono&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#111c2d",
+                        "background": "#f7f9fb",
+                        "primary-fixed-dim": "#ffb874",
+                        "surface-dim": "#d8dadc",
+                        "surface-container-low": "#f2f4f6",
+                        "inverse-primary": "#ffb874",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#f7931a",
+                        "surface-tint": "#8c4f00",
+                        "inverse-surface": "#2d3133",
+                        "outline": "#887362",
+                        "on-tertiary-fixed-variant": "#3c475a",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface": "#f7f9fb",
+                        "secondary-container": "#dae2fd",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed": "#ffdcbf",
+                        "primary": "#8c4f00",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#bcc7de",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#554335",
+                        "tertiary-container": "#a0abc2",
+                        "secondary": "#565e74",
+                        "on-primary-fixed-variant": "#6b3b00",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e0e3e5",
+                        "tertiary": "#545f73",
+                        "on-background": "#191c1e",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#2d1600",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#191c1e",
+                        "secondary-fixed": "#dae2fd",
+                        "surface-container-high": "#e6e8ea",
+                        "on-secondary-container": "#5c647a",
+                        "on-tertiary-container": "#353f52",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "on-primary-container": "#603500",
+                        "surface-bright": "#f7f9fb",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "outline-variant": "#dbc2ae",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#d8e3fb",
+                        "surface-container": "#eceef0",
+                        "on-secondary-fixed": "#131b2e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-padding": "80px",
+                        "stack-lg": "32px",
+                        "margin-desktop": "40px",
+                        "margin-mobile": "16px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-sm": ["Inter"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-sm": ["Geist"],
+                        "mono-technical": ["Geist Mono"],
+                        "label-md": ["Geist"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-md": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "headline-sm": ["24px", {"lineHeight": "32px", "letterSpacing": "0", "fontWeight": "500"}],
+                        "mono-technical": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-hero {
+            background: rgba(17, 28, 45, 0.85);
+            backdrop-filter: blur(20px);
+        }
+        .text-gradient-bitcoin {
+            background: linear-gradient(135deg, #f7931a, #ffb874);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .step-card:hover .step-number {
+            transform: scale(1.1) rotate(-5deg);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<header class="docked full-width top-0 sticky z-50 bg-surface/80 dark:bg-surface/80 backdrop-blur-xl shadow-sm border-b border-outline-variant/30">
+<nav class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-bold tracking-tighter text-on-surface dark:text-inverse-on-surface">Sentinel</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-on-surface-variant dark:text-surface-variant font-medium font-label-md text-label-md hover:text-primary transition-colors" href="#">How it works</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-medium font-label-md text-label-md hover:text-primary transition-colors" href="#">Security</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-medium font-label-md text-label-md hover:text-primary transition-colors" href="#">Pricing</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden sm:block text-primary dark:text-primary-fixed-dim font-medium font-label-md text-label-md hover:opacity-80 transition-opacity">Sign In</button>
+<button class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-full font-bold font-label-md text-label-md hover:shadow-lg active:scale-95 transition-all duration-200">
+                    Create Will
+                </button>
+</div>
+</nav>
+</header>
+<!-- Hero Section -->
+<section class="relative min-h-[90vh] flex items-center bg-on-tertiary-fixed overflow-hidden">
+<!-- Background Animation Layer -->
+<div class="absolute inset-0 z-0">
+
+</div>
+<div class="relative z-10 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center py-section-padding">
+<div class="lg:col-span-7 space-y-stack-lg">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-on-tertiary-fixed-variant rounded-full border border-primary/20">
+<span class="material-symbols-outlined text-primary-fixed-dim text-sm" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="text-primary-fixed-dim font-mono-technical text-mono-technical tracking-widest">SENTINEL_HEARTBEAT_ACTIVE</span>
+</div>
+<h1 class="text-white font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg leading-tight">
+                    Votre héritage numérique,<br/>
+<span class="text-gradient-bitcoin">protégé par Bitcoin.</span>
+</h1>
+<p class="text-tertiary-fixed-dim font-body-lg text-body-lg max-w-xl">
+                    Transmettez automatiquement vos informations essentielles grâce à une preuve de vie cryptographique sur le réseau Lightning.
+                </p>
+<div class="flex flex-col sm:flex-row gap-4 pt-4">
+<button class="bg-primary-container text-on-primary-container px-8 py-4 rounded-xl font-bold font-label-md text-label-md flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-xl shadow-primary-container/20">
+                        Créer mon testament
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="border border-on-tertiary-fixed-variant text-white px-8 py-4 rounded-xl font-medium font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-white/5 transition-all">
+<span class="material-symbols-outlined">play_circle</span>
+                        Voir la démonstration
+                    </button>
+</div>
+<div class="flex items-center gap-6 pt-8 border-t border-white/10 max-w-md">
+<div class="flex flex-col">
+<span class="text-white font-bold font-headline-sm text-headline-sm">256-bit</span>
+<span class="text-tertiary-fixed-dim font-label-sm text-label-sm">Chiffrement AES</span>
+</div>
+<div class="w-px h-10 bg-white/10"></div>
+<div class="flex flex-col">
+<span class="text-white font-bold font-headline-sm text-headline-sm">0 Sat</span>
+<span class="text-tertiary-fixed-dim font-label-sm text-label-sm">Frais de Custody</span>
+</div>
+<div class="w-px h-10 bg-white/10"></div>
+<div class="flex flex-col">
+<span class="text-white font-bold font-headline-sm text-headline-sm">∞</span>
+<span class="text-tertiary-fixed-dim font-label-sm text-label-sm">Résilience</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-5 relative mt-12 lg:mt-0">
+<div class="relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 transform lg:rotate-3 hover:rotate-0 transition-transform duration-700">
+<img alt="A high-end, futuristic digital representation of a secure vault, featuring a glowing blue crystalline cube encased in a translucent golden energy sphere. In the background, a shimmering golden world map with interconnected nodes and a subtle Bitcoin logo signifies global security and decentralized distribution. The overall mood is sophisticated, professional, and impenetrable, using a dark navy and bitcoin orange color palette." class="w-full aspect-[4/5] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnJyuQHE3HMHnWAMBV7i90_gynC7WjXYlVQeEZSwi_5MVAMwRrDbpas-eqydCtoT8xDfuyLzt7gXjK4Zj5tShmxxaFIw4YxMluz0wrhycxw6T-B2YL3wdjU6ptN8M4GsOpTz8p51XGl4L9-hMrjY4L9nJox4oT80l8BxmwMQ_Z1gyFS1By3DnheDosRUNdkYp6-eE1tAhBYT4_bOlokgNECJT1Qo-QAWjfKF-Rn95sZo8Jiby9BdwoPacaKvKAigBXD2QXy8XO3VQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-tertiary-fixed/80 to-transparent"></div>
+<div class="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center justify-between">
+<div>
+<p class="text-white font-bold font-label-md text-label-md">Sentinel Guard v2.4</p>
+<p class="text-tertiary-fixed-dim font-label-sm text-label-sm">Status: Protected</p>
+</div>
+<div class="flex gap-1">
+<span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+<span class="w-2 h-2 rounded-full bg-green-400 animate-pulse delay-75"></span>
+<span class="w-2 h-2 rounded-full bg-green-400 animate-pulse delay-150"></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Section -->
+<section class="py-section-padding bg-surface">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="text-center mb-16 space-y-4">
+<h2 class="text-on-surface font-headline-md text-headline-md">Une transition en toute sérénité</h2>
+<p class="text-on-surface-variant font-body-lg text-body-lg max-w-2xl mx-auto">Trois étapes simples pour garantir que vos actifs parviennent aux bonnes personnes, quoi qu'il arrive.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Step 1 -->
+<div class="step-card group bg-surface-container-lowest p-stack-lg rounded-3xl border border-outline-variant/30 hover:border-primary/40 hover:shadow-xl transition-all duration-300">
+<div class="step-number w-12 h-12 rounded-2xl bg-secondary-container text-primary flex items-center justify-center font-bold font-headline-sm text-headline-sm mb-6 transition-transform">1</div>
+<h3 class="text-on-surface font-headline-sm text-headline-sm mb-4">Configurez vos secrets</h3>
+<p class="text-on-surface-variant font-body-md text-body-md mb-6">Importez vos phrases de récupération, mots de passe et documents sensibles dans votre coffre-fort local.</p>
+<ul class="space-y-3 font-label-md text-label-md text-on-surface-variant">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check_circle</span> Seed Phrases (BIP39)</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check_circle</span> Identifiants Cloud</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check_circle</span> Instructions privées</li>
+</ul>
+</div>
+<!-- Step 2 -->
+<div class="step-card group bg-surface-container-lowest p-stack-lg rounded-3xl border border-outline-variant/30 hover:border-primary/40 hover:shadow-xl transition-all duration-300">
+<div class="step-number w-12 h-12 rounded-2xl bg-secondary-container text-primary flex items-center justify-center font-bold font-headline-sm text-headline-sm mb-6 transition-transform">2</div>
+<h3 class="text-on-surface font-headline-sm text-headline-sm mb-4">Choisissez vos délais</h3>
+<p class="text-on-surface-variant font-body-md text-body-md mb-6">Déterminez après combien de temps sans "battement de cœur" vos données doivent être libérées.</p>
+<div class="grid grid-cols-3 gap-2">
+<div class="p-3 border border-outline-variant rounded-xl text-center">
+<span class="block font-bold text-on-surface">30</span>
+<span class="text-[10px] uppercase text-on-surface-variant">Jours</span>
+</div>
+<div class="p-3 border border-primary bg-primary/5 rounded-xl text-center">
+<span class="block font-bold text-primary">60</span>
+<span class="text-[10px] uppercase text-primary">Jours</span>
+</div>
+<div class="p-3 border border-outline-variant rounded-xl text-center">
+<span class="block font-bold text-on-surface">90</span>
+<span class="text-[10px] uppercase text-on-surface-variant">Jours</span>
+</div>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="step-card group bg-surface-container-lowest p-stack-lg rounded-3xl border border-outline-variant/30 hover:border-primary/40 hover:shadow-xl transition-all duration-300">
+<div class="step-number w-12 h-12 rounded-2xl bg-secondary-container text-primary flex items-center justify-center font-bold font-headline-sm text-headline-sm mb-6 transition-transform">3</div>
+<h3 class="text-on-surface font-headline-sm text-headline-sm mb-4">Prouvez votre vie</h3>
+<p class="text-on-surface-variant font-body-md text-body-md mb-6">Chaque semaine, un simple paiement de 1 satoshi via Lightning Network réinitialise votre compteur Sentinel.</p>
+<div class="bg-surface-container-high rounded-xl p-4 flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<div class="flex-1">
+<div class="h-2 w-full bg-surface-dim rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-3/4 animate-[pulse_2s_infinite]"></div>
+</div>
+<span class="text-[10px] text-on-surface-variant mt-1 block uppercase font-bold">Prochain Heartbeat : 4 jours</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Security Focus Section -->
+<section class="py-section-padding bg-on-tertiary-fixed text-white overflow-hidden relative">
+<div class="absolute right-0 top-0 w-1/3 h-full opacity-10 pointer-events-none">
+
+</div>
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop relative z-10">
+<div class="flex flex-col lg:flex-row gap-gutter items-center">
+<div class="lg:w-1/2 space-y-stack-md">
+<h2 class="font-headline-md text-headline-md">Une architecture Zero-Knowledge</h2>
+<p class="text-tertiary-fixed-dim font-body-lg text-body-lg">
+                        Nous ne possédons pas vos clés. Nous ne voyons pas vos secrets. Tout est chiffré localement sur votre machine avant d'être distribué sur notre infrastructure sécurisée.
+                    </p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-stack-md pt-8">
+<div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+<span class="material-symbols-outlined text-primary-fixed-dim">verified_user</span>
+<div>
+<h4 class="font-bold font-label-md text-label-md">Chiffrement Client</h4>
+<p class="text-tertiary-fixed-dim font-body-sm text-body-sm">Vos données quittent votre navigateur déjà chiffrées en AES-256-GCM.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+<span class="material-symbols-outlined text-primary-fixed-dim">vpn_key</span>
+<div>
+<h4 class="font-bold font-label-md text-label-md">Zéro Knowledge</h4>
+<p class="text-tertiary-fixed-dim font-body-sm text-body-sm">Aucun administrateur Sentinel ne peut accéder au contenu de votre coffre-fort.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+<span class="material-symbols-outlined text-primary-fixed-dim">settings_ethernet</span>
+<div>
+<h4 class="font-bold font-label-md text-label-md">Décentralisation</h4>
+<p class="text-tertiary-fixed-dim font-body-sm text-body-sm">Utilise le réseau Lightning pour une preuve d'existence infalsifiable.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+<span class="material-symbols-outlined text-primary-fixed-dim">terminal</span>
+<div>
+<h4 class="font-bold font-label-md text-label-md">Open Source</h4>
+<p class="text-tertiary-fixed-dim font-body-sm text-body-sm">Le code de notre client est auditable par tous sur GitHub.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:w-1/2 flex justify-center">
+<div class="relative w-full max-w-md aspect-square flex items-center justify-center">
+<div class="absolute inset-0 bg-primary-container/20 rounded-full blur-[100px]"></div>
+<div class="relative bg-on-tertiary-fixed-variant p-8 rounded-[40px] border border-white/10 shadow-2xl">
+<div class="space-y-4">
+<div class="flex justify-between items-center text-xs font-mono-technical text-primary-fixed-dim border-b border-white/10 pb-2">
+<span>PROTOCOL_V2.0</span>
+<span>ENCRYPTED</span>
+</div>
+<div class="font-mono-technical text-sm text-tertiary-fixed-dim break-all leading-relaxed opacity-60">
+                                    f3b2...a8e1...99c0...d7b6...f1a2...3e4d...0b9c...8f7e...6d5a...4c3b...2a19...0e9f...8d7c...6b5a...4321...f1a2...3e4d...0b9c...8f7e...6d5a...4c3b...2a19...0e9f...8d7c...6b5a...4321...
+                                </div>
+<div class="flex items-center gap-4 pt-4">
+<div class="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-0 transition-all duration-1000" id="loading-bar"></div>
+</div>
+<span class="text-xs font-mono-technical">SECURE</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Social Proof / Trust Section -->
+<section class="py-section-padding bg-background">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<div class="lg:col-span-4 space-y-stack-md">
+<h2 class="font-headline-md text-headline-md">Ils nous font confiance pour protéger leur futur.</h2>
+<p class="text-on-surface-variant font-body-md text-body-md">Des investisseurs Bitcoin de la première heure aux entrepreneurs tech d'aujourd'hui.</p>
+<div class="flex items-center gap-4">
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-full border-2 border-background bg-secondary-fixed flex items-center justify-center font-bold text-xs">J</div>
+<div class="w-10 h-10 rounded-full border-2 border-background bg-primary-fixed flex items-center justify-center font-bold text-xs">M</div>
+<div class="w-10 h-10 rounded-full border-2 border-background bg-tertiary-fixed flex items-center justify-center font-bold text-xs">A</div>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm">+ 12,000 Gardiens</span>
+</div>
+</div>
+<div class="lg:col-span-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div class="p-stack-md bg-white rounded-3xl border border-outline-variant/30 shadow-sm">
+<div class="flex gap-1 text-primary mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-on-surface italic font-body-md text-body-md mb-4">"Sentinel a résolu ma plus grande angoisse : que devient mon Bitcoin si je disparais demain ? Le concept de 'heartbeat' via Lightning est tout simplement génial."</p>
+<p class="font-bold font-label-md text-label-md">Alexandre D.</p>
+<p class="text-on-surface-variant font-label-sm text-label-sm">Entrepreneur Web3</p>
+</div>
+<div class="p-stack-md bg-white rounded-3xl border border-outline-variant/30 shadow-sm">
+<div class="flex gap-1 text-primary mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-on-surface italic font-body-md text-body-md mb-4">"Une interface épurée pour une technologie complexe. J'apprécie le fait que mes bénéficiaires n'aient rien à payer, tout est pré-configuré."</p>
+<p class="font-bold font-label-md text-label-md">Sarah K.</p>
+<p class="text-on-surface-variant font-label-sm text-label-sm">Bitcoin Investor</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="full-width bottom-0 bg-surface-container-lowest dark:bg-on-tertiary-fixed border-t border-outline-variant/20">
+<div class="w-full px-margin-mobile md:px-margin-desktop py-stack-lg grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-gutter max-w-container-max mx-auto">
+<div class="col-span-2 space-y-4">
+<span class="font-headline-sm text-headline-sm text-on-surface dark:text-primary-fixed font-bold tracking-tighter">Sentinel</span>
+<p class="text-on-surface-variant dark:text-tertiary-fixed-dim font-body-sm text-body-sm max-w-xs">
+                    La garde de votre héritage numérique simplifiée. Sécurisé par la preuve de travail.
+                </p>
+<p class="font-mono-technical text-[11px] text-primary dark:text-primary-fixed-dim opacity-60">
+                    © 2024 Sentinel Custody. AES-256-GCM Encrypted.
+                </p>
+</div>
+<div class="space-y-4">
+<p class="text-on-surface dark:text-white font-bold font-label-md text-label-md">Product</p>
+<ul class="space-y-2">
+<li><a class="text-on-surface-variant dark:text-tertiary-fixed-dim font-label-sm text-label-sm hover:underline hover:text-primary transition-all" href="#">Features</a></li>
+<li><a class="text-on-surface-variant dark:text-tertiary-fixed-dim font-label-sm text-label-sm hover:underline hover:text-primary transition-all" href="#">Security</a></li>
+<li><a class="text-on-surface-variant dark:text-tertiary-fixed-dim font-label-sm text-label-sm hover:underline hover:text-primary transition-all" href="#">Pricing</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<p class="text-on-surface dark:text-white font-bold font-label-md text-label-md">Company</p>
+<ul class="space-y-2">
+<li><a class="text-on-surface-variant dark:text-tertiary-fixed-dim font-label-sm text-label-sm hover:underline hover:text-primary transition-all" href="#">About</a></li>
+<li><a class="text-on-surface-variant dark:text-tertiary-fixed-dim font-label-sm text-label-sm hover:underline hover:text-primary transition-all" href="#">Careers</a></li>
+<li><a class="text-on-surface-variant dark:text-tertiary-fixed-dim font-label-sm text-label-sm hover:underline hover:text-primary transition-all" href="#">Blog</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<p class="text-on-surface dark:text-white font-bold font-label-md text-label-md">Resources</p>
+<ul class="space-y-2">
+<li><a class="text-on-surface-variant dark:text-tertiary-fixed-dim font-label-sm text-label-sm hover:underline hover:text-primary transition-all" href="#">Documentation</a></li>
+<li><a class="text-on-surface-variant dark:text-tertiary-fixed-dim font-label-sm text-label-sm hover:underline hover:text-primary transition-all" href="#">API Reference</a></li>
+<li><a class="text-on-surface-variant dark:text-tertiary-fixed-dim font-label-sm text-label-sm hover:underline hover:text-primary transition-all" href="#">Support</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<p class="text-on-surface dark:text-white font-bold font-label-md text-label-md">Legal</p>
+<ul class="space-y-2">
+<li><a class="text-on-surface-variant dark:text-tertiary-fixed-dim font-label-sm text-label-sm hover:underline hover:text-primary transition-all" href="#">Privacy</a></li>
+<li><a class="text-on-surface-variant dark:text-tertiary-fixed-dim font-label-sm text-label-sm hover:underline hover:text-primary transition-all" href="#">Terms</a></li>
+<li><a class="text-on-surface-variant dark:text-tertiary-fixed-dim font-label-sm text-label-sm hover:underline hover:text-primary transition-all" href="#">Contact</a></li>
+</ul>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interaction: Loading bar simulation in security section
+        document.addEventListener('DOMContentLoaded', () => {
+            const bar = document.getElementById('loading-bar');
+            if (bar) {
+                const animateBar = () => {
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = '100%';
+                    }, 100);
+                };
+                animateBar();
+                setInterval(animateBar, 5000);
+            }
+        });
+
+        // Simple scroll reveal effect for step cards
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-10');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.step-card').forEach(card => {
+            card.classList.add('opacity-0', 'translate-y-10', 'transition-all', 'duration-700', 'ease-out');
+            observer.observe(card);
+        });
+    </script>
+</body></html>

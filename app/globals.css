@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+:root {
+  /* Default: Dark Theme */
+  --bg-rgb: 11, 11, 11;
+  --bg: #0B0B0B;
+  --bg-soft: #0E0E0E;
+  --panel: #121212;
+  --panel-inner: #0E0E0E;
+  --logo-bg: #141414;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --hairline: rgba(255, 255, 255, 0.10);
+  --row-hover: rgba(255, 255, 255, 0.03);
+  --nav-hover: rgba(255, 255, 255, 0.05);
+  --text: #F4F1EE;
+  --text-body: #ECE8E4;
+  --text-soft: #D8D4CE;
+  --text-list: #C9C5BF;
+  --text-dim: #A8A29B;
+  --text-muted: #6F6A64;
+  --text-faint: #5C5853;
+  --accent-rgb: 247, 147, 26;
+  --accent: #F7931A;
+  --accent-ink: #F7931A;
+  --accent-soft: #FFB874;
+  --btn-text: #161310;
+  --success-rgb: 52, 211, 153;
+  --success: #34D399;
+  --header-bg: rgba(11, 11, 11, 0.72);
+  --avatar-bg: #2A2A2A;
+}
+
+[data-theme="light"] {
+  /* Light Theme */
+  --bg-rgb: 246, 244, 240;
+  --bg: #F6F4F0;
+  --bg-soft: #FFFFFF;
+  --panel: #FFFFFF;
+  --panel-inner: #F2EFEA;
+  --logo-bg: #FFFFFF;
+  --border: rgba(28, 22, 14, 0.10);
+  --border-strong: rgba(28, 22, 14, 0.16);
+  --hairline: rgba(28, 22, 14, 0.10);
+  --row-hover: rgba(28, 22, 14, 0.03);
+  --nav-hover: rgba(28, 22, 14, 0.045);
+  --text: #1A1510;
+  --text-body: #241F18;
+  --text-soft: #39342B;
+  --text-list: #433D33;
+  --text-dim: #6D655A;
+  --text-muted: #9A9085;
+  --text-faint: #B4A99D;
+  --accent-rgb: 181, 101, 10;
+  --accent: #F7931A;
+  --accent-ink: #B5650A;
+  --accent-soft: #C26A0A;
+  --btn-text: #1B1206;
+  --success-rgb: 21, 128, 61;
+  --success: #15803D;
+  --header-bg: rgba(246, 244, 240, 0.78);
+  --avatar-bg: #E9E2D8;
+}
+
+::selection {
+  background: rgba(var(--accent-rgb), 0.28);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-body);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  letter-spacing: -0.004em;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s, color 0.3s;
+  min-height: 100vh;
+}
+
+/* ECG and pulsation animations */
+@keyframes sentpulse {
+  0% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(var(--success-rgb), 0.5);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 7px rgba(var(--success-rgb), 0);
+  }
+  100% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(var(--success-rgb), 0);
+  }
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes glowfade {
+  0%, 100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.animate-heartbeat {
+  animation: sentpulse 2.4s infinite;
+}
+
+.animate-ecg-dash {
+  animation: dash 4s linear infinite;
+}
+
+.animate-glowfade {
+  animation: glowfade 3s ease-in-out infinite;
+}
