@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState, type ReactNode } from 'react';
 import Sidebar from './Sidebar';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -13,6 +15,8 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { lang, toggleLang } = useLanguage();
+  const L = translations[lang].dashboardLayout;
 
   useEffect(() => {
     const saved = localStorage.getItem('sentinel_theme') as 'dark' | 'light' | null;
@@ -129,25 +133,46 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
             </div>
           </div>
 
-          <button
-            onClick={toggleTheme}
-            title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
-            style={{
-              background: 'var(--panel)',
-              border: '1px solid var(--border)',
-              borderRadius: 10,
-              padding: isMobile ? '6px 8px' : '8px 10px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--text-dim)' }}>
-              {theme === 'dark' ? 'light_mode' : 'dark_mode'}
-            </span>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+              onClick={toggleLang}
+              title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+              style={{
+                background: 'var(--panel)',
+                border: '1px solid var(--border)',
+                borderRadius: 10,
+                height: 36,
+                padding: '0 10px',
+                cursor: 'pointer',
+                color: 'var(--text-dim)',
+                fontSize: 12,
+                fontWeight: 600,
+                fontFamily: 'monospace',
+                letterSpacing: '0.06em',
+              }}
+            >
+              {lang === 'fr' ? 'EN' : 'FR'}
+            </button>
+            <button
+              onClick={toggleTheme}
+              title={theme === 'dark' ? L.lightMode : L.darkMode}
+              style={{
+                background: 'var(--panel)',
+                border: '1px solid var(--border)',
+                borderRadius: 10,
+                padding: isMobile ? '6px 8px' : '8px 10px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--text-dim)' }}>
+                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+              </span>
+            </button>
+          </div>
         </header>
 
         {/* Page Content */}

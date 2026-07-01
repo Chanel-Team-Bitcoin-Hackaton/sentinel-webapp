@@ -3,9 +3,13 @@
 import React, { use, useState, useEffect } from 'react';
 import LNInvoiceModal from '@/app/components/LNInvoiceModal';
 import { api, type Testament } from '@/app/lib/api';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 export default function PublicCheckinPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: testamentId } = use(params);
+  const { lang, toggleLang } = useLanguage();
+  const L = translations[lang].checkin;
   const [testament, setTestament] = useState<Testament | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
@@ -49,7 +53,7 @@ export default function PublicCheckinPage({ params }: { params: Promise<{ id: st
   if (isLoading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
-        <div style={{ color: 'var(--text-muted)' }}>Chargement…</div>
+        <div style={{ color: 'var(--text-muted)' }}>{L.loading}</div>
       </div>
     );
   }
@@ -59,8 +63,8 @@ export default function PublicCheckinPage({ params }: { params: Promise<{ id: st
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
           <span className="material-symbols-outlined" style={{ fontSize: 48, color: '#EF4444', marginBottom: 12 }}>error</span>
-          <h2 style={{ fontSize: 20, color: 'var(--text)' }}>Testament Introuvable</h2>
-          <p style={{ fontSize: 14, color: 'var(--text-dim)' }}>Ce code de check-in rapide n&apos;est pas ou plus valide.</p>
+          <h2 style={{ fontSize: 20, color: 'var(--text)' }}>{L.notFoundTitle}</h2>
+          <p style={{ fontSize: 14, color: 'var(--text-dim)' }}>{L.notFoundDesc}</p>
         </div>
       </div>
     );
@@ -83,7 +87,14 @@ export default function PublicCheckinPage({ params }: { params: Promise<{ id: st
         padding: 20,
       }}
     >
-      <div style={{ width: '100%', maxWidth: 440 }}>
+      <div style={{ width: '100%', maxWidth: 440, position: 'relative' }}>
+        <button
+          onClick={toggleLang}
+          title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+          style={{ position: 'absolute', top: 0, right: 0, border: '1px solid var(--border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-dim)', height: 32, borderRadius: 7, padding: '0 10px', fontSize: 12, fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.06em' }}
+        >
+          {lang === 'fr' ? 'EN' : 'FR'}
+        </button>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div
@@ -102,10 +113,10 @@ export default function PublicCheckinPage({ params }: { params: Promise<{ id: st
             <span style={{ fontFamily: 'Playfair Display, serif', fontWeight: 700, fontSize: 24, color: '#fff' }}>S</span>
           </div>
           <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 24, fontWeight: 600, color: 'var(--text)', margin: '0 0 6px' }}>
-            Check-in Rapide
+            {L.title}
           </h1>
           <p style={{ fontSize: 13, color: 'var(--text-dim)' }}>
-            Confirmez votre présence sans connexion à votre compte
+            {L.subtitle}
           </p>
         </div>
 
@@ -143,14 +154,14 @@ export default function PublicCheckinPage({ params }: { params: Promise<{ id: st
               }}
             />
             <span style={{ fontSize: 12, fontWeight: 600, color: testament.status === 'ACTIVE' ? 'var(--success)' : '#EF4444', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Testament {testament.status === 'ACTIVE' ? 'Actif' : 'Déclenché'}
+              {L.testamentLabel} {testament.status === 'ACTIVE' ? L.statusActive : L.statusTriggered}
             </span>
           </div>
 
           {/* Countdown display */}
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
-              Temps restant avant déclenchement
+              {L.timeRemaining}
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 6 }}>
               <span style={{ fontFamily: 'Playfair Display, serif', fontSize: 44, fontWeight: 700, color: 'var(--text)' }}>
@@ -158,7 +169,7 @@ export default function PublicCheckinPage({ params }: { params: Promise<{ id: st
               </span>
               {testament.status !== 'TRIGGERED' && (
                 <span style={{ fontSize: 14, color: 'var(--text-dim)', fontWeight: 500 }}>
-                  jour{diffDays !== 1 ? 's' : ''}
+                  {diffDays !== 1 ? L.days : L.day}
                 </span>
               )}
             </div>
@@ -185,13 +196,13 @@ export default function PublicCheckinPage({ params }: { params: Promise<{ id: st
               transition: 'all 0.2s',
             }}
           >
-            ⚡ Confirmer ma présence — 1 sat
+            {L.checkinCta}
           </button>
         </div>
 
         {/* Footer */}
         <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-          Ce lien de check-in rapide est unique à votre appareil ou configuration papier. Conservez-le secret.
+          {L.footerNote}
         </p>
       </div>
 

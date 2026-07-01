@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import { api, type Testament, type EncryptedSecret, type Beneficiary, type Checkin } from '@/app/lib/api';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 interface TestamentState {
   testament: Testament | null;
@@ -25,6 +27,8 @@ interface TestamentContextValue extends TestamentState {
 const TestamentContext = createContext<TestamentContextValue | undefined>(undefined);
 
 export function TestamentProvider({ children }: { children: ReactNode }) {
+  const { lang } = useLanguage();
+  const L = translations[lang].authErrors;
   const [state, setState] = useState<TestamentState>({
     testament: null,
     secrets: [],
@@ -63,10 +67,10 @@ export function TestamentProvider({ children }: { children: ReactNode }) {
         });
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Erreur lors du chargement.';
+      const message = err instanceof Error ? err.message : L.loadFailed;
       setState((prev) => ({ ...prev, isLoading: false, error: message }));
     }
-  }, []);
+  }, [L.loadFailed]);
 
   const createTestament = useCallback(async (delayDays: number): Promise<Testament> => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
@@ -75,11 +79,11 @@ export function TestamentProvider({ children }: { children: ReactNode }) {
       setState((prev) => ({ ...prev, testament, isLoading: false }));
       return testament;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Erreur lors de la création.';
+      const message = err instanceof Error ? err.message : L.createFailed;
       setState((prev) => ({ ...prev, isLoading: false, error: message }));
       throw err;
     }
-  }, []);
+  }, [L.createFailed]);
 
   const updateDelay = useCallback(async (delayDays: number) => {
     if (!state.testament) return;
@@ -87,10 +91,10 @@ export function TestamentProvider({ children }: { children: ReactNode }) {
       const updated = await api.testament.updateDelay(state.testament.id, delayDays);
       setState((prev) => ({ ...prev, testament: updated }));
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Erreur lors de la mise à jour.';
+      const message = err instanceof Error ? err.message : L.updateFailed;
       setState((prev) => ({ ...prev, error: message }));
     }
-  }, [state.testament]);
+  }, [state.testament, L.updateFailed]);
 
   const addSecret = useCallback(
     async (title: string, type: EncryptedSecret['type'], encryptedBlob: string, ivHex: string, saltHex: string) => {
@@ -99,11 +103,11 @@ export function TestamentProvider({ children }: { children: ReactNode }) {
         const newSecret = await api.secrets.create(state.testament.id, title, type, encryptedBlob, ivHex, saltHex);
         setState((prev) => ({ ...prev, secrets: [...prev.secrets, newSecret] }));
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Erreur lors de l'ajout du secret.";
+        const message = err instanceof Error ? err.message : L.addSecretFailed;
         setState((prev) => ({ ...prev, error: message }));
       }
     },
-    [state.testament]
+    [state.testament, L.addSecretFailed]
   );
 
   const removeSecret = useCallback(async (secretId: string) => {
@@ -114,10 +118,10 @@ export function TestamentProvider({ children }: { children: ReactNode }) {
         secrets: prev.secrets.filter((s) => s.id !== secretId),
       }));
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Erreur lors de la suppression.';
+      const message = err instanceof Error ? err.message : L.deleteSecretFailed;
       setState((prev) => ({ ...prev, error: message }));
     }
-  }, []);
+  }, [L.deleteSecretFailed]);
 
   const upsertBeneficiary = useCallback(
     async (data: { name: string; email: string; phone: string; secretQuestion: string; secretQuestionHash: string }) => {
@@ -126,11 +130,11 @@ export function TestamentProvider({ children }: { children: ReactNode }) {
         const beneficiary = await api.beneficiary.upsert(state.testament.id, data);
         setState((prev) => ({ ...prev, beneficiary }));
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Erreur bénéficiaire.';
+        const message = err instanceof Error ? err.message : L.beneficiaryFailed;
         setState((prev) => ({ ...prev, error: message }));
       }
     },
-    [state.testament]
+    [state.testament, L.beneficiaryFailed]
   );
 
   const refreshCheckins = useCallback(async () => {

@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 interface HeartbeatCardProps {
   status: 'ACTIVE' | 'WARNING' | 'TRIGGERED';
@@ -9,10 +11,13 @@ interface HeartbeatCardProps {
 }
 
 export default function HeartbeatCard({ status, nextCheckinAt, lastSeenAt }: HeartbeatCardProps) {
+  const { lang } = useLanguage();
+  const L = translations[lang].heartbeatCard;
+
   const statusConfig = {
-    ACTIVE: { label: 'Actif', color: 'var(--success)', icon: 'favorite', glow: 'var(--success-rgb)' },
-    WARNING: { label: 'En retard', color: '#FBBF24', icon: 'warning', glow: '251, 191, 36' },
-    TRIGGERED: { label: 'Déclenché', color: '#EF4444', icon: 'error', glow: '239, 68, 68' },
+    ACTIVE: { label: L.active, color: 'var(--success)', icon: 'favorite', glow: 'var(--success-rgb)' },
+    WARNING: { label: L.warning, color: '#FBBF24', icon: 'warning', glow: '251, 191, 36' },
+    TRIGGERED: { label: L.triggered, color: '#EF4444', icon: 'error', glow: '239, 68, 68' },
   };
 
   const config = statusConfig[status];
@@ -96,7 +101,7 @@ export default function HeartbeatCard({ status, nextCheckinAt, lastSeenAt }: Hea
         {/* Countdown */}
         <div style={{ marginBottom: 16 }}>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
-            Prochain check-in
+            {L.nextCheckin}
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
             <span
@@ -112,7 +117,7 @@ export default function HeartbeatCard({ status, nextCheckinAt, lastSeenAt }: Hea
             </span>
             {status !== 'TRIGGERED' && (
               <span style={{ fontSize: 14, color: 'var(--text-dim)', fontWeight: 500 }}>
-                jour{diffDays !== 1 ? 's' : ''}
+                {diffDays !== 1 ? L.days : L.day}
               </span>
             )}
           </div>
@@ -121,15 +126,15 @@ export default function HeartbeatCard({ status, nextCheckinAt, lastSeenAt }: Hea
         {/* Meta */}
         <div style={{ display: 'flex', gap: 24, fontSize: 12, color: 'var(--text-muted)' }}>
           <div>
-            <span style={{ opacity: 0.7 }}>Dernière activité : </span>
+            <span style={{ opacity: 0.7 }}>{L.lastActivity}</span>
             <span style={{ color: 'var(--text-dim)' }}>
-              {new Date(lastSeenAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+              {new Date(lastSeenAt).toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
             </span>
           </div>
           <div>
-            <span style={{ opacity: 0.7 }}>Échéance : </span>
+            <span style={{ opacity: 0.7 }}>{L.deadline}</span>
             <span style={{ color: 'var(--text-dim)' }}>
-              {new Date(nextCheckinAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+              {new Date(nextCheckinAt).toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
             </span>
           </div>
         </div>

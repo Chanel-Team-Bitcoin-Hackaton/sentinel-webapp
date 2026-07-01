@@ -5,11 +5,15 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
 import { useTestament } from '@/app/context/TestamentContext';
 import DashboardLayout from '@/app/components/DashboardLayout';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 export default function BeneficiaryPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { testament, beneficiary, isLoading, refresh, upsertBeneficiary } = useTestament();
   const router = useRouter();
+  const { lang } = useLanguage();
+  const L = translations[lang].dashboardBeneficiary;
 
   // Form states
   const [name, setName] = useState('');
@@ -49,7 +53,7 @@ export default function BeneficiaryPage() {
     if (!testament) return;
 
     if (!name || !email) {
-      setErrorMsg('Le nom et l\'email sont requis.');
+      setErrorMsg(L.errorRequiredFields);
       return;
     }
 
@@ -62,10 +66,10 @@ export default function BeneficiaryPage() {
         secretQuestion,
         secretQuestionHash: secretQuestion ? 'bcrypt_hash_placeholder' : '',
       });
-      setSuccessMsg('Informations du bénéficiaire mises à jour avec succès.');
+      setSuccessMsg(L.successUpdate);
       refresh();
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Erreur lors de la mise à jour.');
+      setErrorMsg(err instanceof Error ? err.message : L.errorUpdateFailed);
     } finally {
       setIsSubmitting(false);
     }
@@ -73,9 +77,9 @@ export default function BeneficiaryPage() {
 
   if (authLoading || isLoading) {
     return (
-      <DashboardLayout title="Bénéficiaire">
+      <DashboardLayout title={L.title}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400, color: 'var(--text-muted)' }}>
-          Chargement…
+          {L.loading}
         </div>
       </DashboardLayout>
     );
@@ -83,16 +87,16 @@ export default function BeneficiaryPage() {
 
   if (!testament) {
     return (
-      <DashboardLayout title="Bénéficiaire">
+      <DashboardLayout title={L.title}>
         <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>
-          Veuillez d&apos;abord configurer votre testament.
+          {L.configureFirst}
         </div>
       </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout title="Bénéficiaire" subtitle="Gérez le bénéficiaire désigné pour votre testament">
+    <DashboardLayout title={L.title} subtitle={L.subtitle}>
       <div style={{ maxWidth: 600 }}>
         {/* Form Card */}
         <div
@@ -144,12 +148,12 @@ export default function BeneficiaryPage() {
 
             <div>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                Nom complet du bénéficiaire
+                {L.fullNameLabel}
               </label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Ex: Koffi Adjovi"
+                placeholder={L.fullNamePlaceholder}
                 required
                 style={{
                   width: '100%',
@@ -167,13 +171,13 @@ export default function BeneficiaryPage() {
 
             <div>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                Adresse email
+                {L.emailLabel}
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Ex: koffi.adjovi@example.com"
+                placeholder={L.emailPlaceholder}
                 required
                 style={{
                   width: '100%',
@@ -191,13 +195,13 @@ export default function BeneficiaryPage() {
 
             <div>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                Téléphone (optionnel — format international SMS)
+                {L.phoneLabel}
               </label>
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="Ex: +228 90 00 00 00"
+                placeholder={L.phonePlaceholder}
                 style={{
                   width: '100%',
                   padding: '11px 14px',
@@ -214,12 +218,12 @@ export default function BeneficiaryPage() {
 
             <div style={{ borderTop: '1px solid var(--border)', paddingTop: 18 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                Question secrète émotionnelle
+                {L.secretQuestionLabel}
               </label>
               <textarea
                 value={secretQuestion}
                 onChange={(e) => setSecretQuestion(e.target.value)}
-                placeholder="Ex: Quel est le nom de la chèvre préférée de ton grand-père ?"
+                placeholder={L.secretQuestionPlaceholder}
                 rows={3}
                 style={{
                   width: '100%',
@@ -235,7 +239,7 @@ export default function BeneficiaryPage() {
                 }}
               />
               <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6, margin: 0, lineHeight: 1.4 }}>
-                Cette question sert de validation émotionnelle facultative lors de l&apos;accès public à vos secrets.
+                {L.secretQuestionHint}
               </p>
             </div>
 
@@ -257,7 +261,7 @@ export default function BeneficiaryPage() {
                 marginTop: 8,
               }}
             >
-              {isSubmitting ? 'Mise à jour…' : 'Enregistrer les modifications'}
+              {isSubmitting ? L.submitting : L.submit}
             </button>
           </form>
         </div>

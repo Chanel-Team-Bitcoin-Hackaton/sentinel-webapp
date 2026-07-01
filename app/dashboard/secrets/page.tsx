@@ -6,11 +6,15 @@ import { useAuth } from '@/app/context/AuthContext';
 import { useTestament } from '@/app/context/TestamentContext';
 import DashboardLayout from '@/app/components/DashboardLayout';
 import { encryptSecret } from '@/app/lib/crypto';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 export default function SecretsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { testament, secrets, isLoading, refresh, addSecret, removeSecret } = useTestament();
   const router = useRouter();
+  const { lang } = useLanguage();
+  const L = translations[lang].dashboardSecrets;
 
   // Modal / Form state
   const [isOpen, setIsOpen] = useState(false);
@@ -39,12 +43,12 @@ export default function SecretsPage() {
     if (!testament) return;
 
     if (!title || !plaintext || !secretWord) {
-      setErrorMsg('Veuillez remplir tous les champs obligatoires.');
+      setErrorMsg(L.errorRequiredFields);
       return;
     }
 
     if (secretWord.length < 10) {
-      setErrorMsg('Le mot secret doit comporter au moins 10 caractères.');
+      setErrorMsg(L.errorSecretWordTooShort);
       return;
     }
 
@@ -67,14 +71,14 @@ export default function SecretsPage() {
       setIsOpen(false);
       refresh();
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : "Erreur lors de l'enregistrement du secret.");
+      setErrorMsg(err instanceof Error ? err.message : L.errorSaveFailed);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce secret définitivement ?')) {
+    if (confirm(L.deleteConfirm)) {
       await removeSecret(id);
       refresh();
     }
@@ -82,19 +86,19 @@ export default function SecretsPage() {
 
   if (authLoading || isLoading) {
     return (
-      <DashboardLayout title="Mes Secrets">
+      <DashboardLayout title={L.title}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400, color: 'var(--text-muted)' }}>
-          Chargement…
+          {L.loading}
         </div>
       </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout title="Mes Secrets" subtitle="Gérez vos données confidentielles cryptées de bout en bout">
+    <DashboardLayout title={L.title} subtitle={L.subtitle}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-soft)', margin: 0 }}>
-          Coffre-fort numérique ({secrets.length} secret{secrets.length !== 1 ? 's' : ''})
+          {L.vaultTitle} ({secrets.length} {secrets.length !== 1 ? L.secretPlural : L.secretSingular})
         </h2>
         <button
           onClick={() => setIsOpen(true)}
@@ -114,7 +118,7 @@ export default function SecretsPage() {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>
-          Déposer un secret
+          {L.depositSecret}
         </button>
       </div>
 
@@ -132,7 +136,7 @@ export default function SecretsPage() {
             lock_open
           </span>
           <p style={{ fontSize: 14, color: 'var(--text-dim)', margin: '0 0 16px' }}>
-            Votre coffre-fort est vide. Aucun secret n&apos;a encore été déposé.
+            {L.emptyVault}
           </p>
         </div>
       ) : (
@@ -174,9 +178,9 @@ export default function SecretsPage() {
                     {secret.title}
                   </h4>
                   <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--text-muted)' }}>
-                    <span>Type: {secret.type}</span>
+                    <span>{L.typeLabel}: {secret.type}</span>
                     <span>•</span>
-                    <span>Ajouté le: {new Date(secret.createdAt).toLocaleDateString('fr-FR')}</span>
+                    <span>{L.addedOnLabel}: {new Date(secret.createdAt).toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US')}</span>
                   </div>
                 </div>
               </div>
@@ -193,7 +197,7 @@ export default function SecretsPage() {
                     color: 'var(--text-muted)',
                   }}
                 >
-                  Chiffré AES-256-GCM
+                  {L.encryptedBadge}
                 </span>
                 <button
                   onClick={() => handleDelete(secret.id)}
@@ -249,7 +253,7 @@ export default function SecretsPage() {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, fontWeight: 600, color: 'var(--text)', margin: 0 }}>
-                🔐 Déposer un secret
+                {L.modalTitle}
               </h3>
               <button
                 onClick={() => setIsOpen(false)}
@@ -268,12 +272,12 @@ export default function SecretsPage() {
 
               <div>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                  Titre du secret
+                  {L.secretTitleLabel}
                 </label>
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ex: Phrase de récupération 24 mots"
+                  placeholder={L.secretTitlePlaceholder}
                   required
                   style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--panel-inner)', color: 'var(--text)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
                 />
@@ -281,28 +285,28 @@ export default function SecretsPage() {
 
               <div>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                  Type de données
+                  {L.dataTypeLabel}
                 </label>
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value as any)}
                   style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--panel-inner)', color: 'var(--text)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
                 >
-                  <option value="SEED">Mnemonic Seed BIP-39 (24 mots)</option>
-                  <option value="TEXT">Texte libre</option>
-                  <option value="CREDENTIALS">Identifiants et mots de passe</option>
-                  <option value="PDF">Fichier PDF (max 5Mo)</option>
+                  <option value="SEED">{L.typeSeed}</option>
+                  <option value="TEXT">{L.typeText}</option>
+                  <option value="CREDENTIALS">{L.typeCredentials}</option>
+                  <option value="PDF">{L.typePdf}</option>
                 </select>
               </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                  Contenu en clair (Saisie sécurisée)
+                  {L.plaintextLabel}
                 </label>
                 <textarea
                   value={plaintext}
                   onChange={(e) => setPlaintext(e.target.value)}
-                  placeholder="Saisissez ici le secret à chiffrer..."
+                  placeholder={L.plaintextPlaceholder}
                   rows={4}
                   required
                   style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--panel-inner)', color: 'var(--text)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
@@ -311,13 +315,13 @@ export default function SecretsPage() {
 
               <div style={{ borderTop: '1px solid var(--border)', paddingTop: 14 }}>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--accent-ink)', marginBottom: 6 }}>
-                  🔑 Mot secret (Requis pour le chiffrement local)
+                  {L.secretWordLabel}
                 </label>
                 <input
                   type="password"
                   value={secretWord}
                   onChange={(e) => setSecretWord(e.target.value)}
-                  placeholder="Entrez votre mot secret (min 10 caractères)"
+                  placeholder={L.secretWordPlaceholder}
                   required
                   style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--panel-inner)', color: 'var(--text)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
                 />
@@ -341,7 +345,7 @@ export default function SecretsPage() {
                   marginTop: 10,
                 }}
               >
-                {isSubmitting ? 'Chiffrement en cours…' : 'Chiffrer et enregistrer'}
+                {isSubmitting ? L.submitting : L.submit}
               </button>
             </form>
           </div>

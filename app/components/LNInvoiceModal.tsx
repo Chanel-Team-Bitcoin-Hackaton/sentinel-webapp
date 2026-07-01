@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '@/app/lib/api';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 interface LNInvoiceModalProps {
   testamentId: string;
@@ -11,6 +13,8 @@ interface LNInvoiceModalProps {
 }
 
 export default function LNInvoiceModal({ testamentId, isOpen, onClose, onPaymentConfirmed }: LNInvoiceModalProps) {
+  const { lang } = useLanguage();
+  const L = translations[lang].lnInvoiceModal;
   const [invoice, setInvoice] = useState<string | null>(null);
   const [paymentHash, setPaymentHash] = useState<string | null>(null);
   const [status, setStatus] = useState<'loading' | 'waiting' | 'paid' | 'error'>('loading');
@@ -32,10 +36,10 @@ export default function LNInvoiceModal({ testamentId, isOpen, onClose, onPayment
         setStatus('waiting');
       })
       .catch((err) => {
-        setErrorMsg(err.message || "Impossible de générer l'invoice.");
+        setErrorMsg(err.message || L.invoiceError);
         setStatus('error');
       });
-  }, [isOpen, testamentId]);
+  }, [isOpen, testamentId, L.invoiceError]);
 
   // Poll for payment status
   useEffect(() => {
@@ -107,7 +111,7 @@ export default function LNInvoiceModal({ testamentId, isOpen, onClose, onPayment
               margin: 0,
             }}
           >
-            ⚡ Check-in Lightning
+            {L.title}
           </h3>
           <button
             onClick={onClose}
@@ -138,7 +142,7 @@ export default function LNInvoiceModal({ testamentId, isOpen, onClose, onPayment
                 margin: '0 auto 16px',
               }}
             />
-            <p style={{ fontSize: 14 }}>Génération de l&apos;invoice…</p>
+            <p style={{ fontSize: 14 }}>{L.generating}</p>
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         )}
@@ -171,7 +175,7 @@ export default function LNInvoiceModal({ testamentId, isOpen, onClose, onPayment
 
             <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--accent)', marginBottom: 4 }}>1 sat</div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
-              Scannez ou copiez l&apos;invoice ci-dessous
+              {L.scanOrCopy}
             </div>
 
             {/* Invoice string */}
@@ -215,7 +219,7 @@ export default function LNInvoiceModal({ testamentId, isOpen, onClose, onPayment
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                 {copied ? 'check' : 'content_copy'}
               </span>
-              {copied ? 'Copié !' : "Copier l'invoice"}
+              {copied ? L.copied : L.copy}
             </button>
 
             <div
@@ -233,7 +237,7 @@ export default function LNInvoiceModal({ testamentId, isOpen, onClose, onPayment
               <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
                 hourglass_top
               </span>
-              En attente du paiement…
+              {L.waitingPayment}
             </div>
           </>
         )}
@@ -260,10 +264,10 @@ export default function LNInvoiceModal({ testamentId, isOpen, onClose, onPayment
               </span>
             </div>
             <h4 style={{ fontSize: 18, fontWeight: 600, color: 'var(--success)', marginBottom: 8 }}>
-              Paiement confirmé !
+              {L.paymentConfirmed}
             </h4>
             <p style={{ fontSize: 13, color: 'var(--text-dim)' }}>
-              Votre présence a été prouvée. Le compteur a été réinitialisé.
+              {L.paymentConfirmedDesc}
             </p>
           </div>
         )}

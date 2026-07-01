@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { api } from '@/app/lib/api';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 type AuthStatus = 'LOADING' | 'PENDING' | 'CONFIRMED' | 'EXPIRED' | 'ERROR' | 'NETWORK_ERROR';
 
@@ -49,6 +51,8 @@ function QRCode({ value, size = 180 }: { value: string; size?: number }) {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { lang, toggleLang } = useLanguage();
+  const L = translations[lang].login;
 
   const [status, setStatus] = useState<AuthStatus>('LOADING');
   const [lnurl, setLnurl] = useState('');
@@ -90,14 +94,14 @@ export default function LoginPage() {
           } else if (result.status === 'ERROR') {
             clearPolling();
             setStatus('ERROR');
-            setErrorMessage('Signature invalide, réessayez');
+            setErrorMessage(L.invalidSignature);
           }
         } catch {
           // network hiccup — keep polling
         }
       }, 2000);
     },
-    [clearPolling, router]
+    [clearPolling, router, L.invalidSignature]
   );
 
   const generateChallenge = useCallback(async () => {
@@ -115,9 +119,9 @@ export default function LoginPage() {
       startPolling(challenge.k1, challenge.expiresAt);
     } catch {
       setStatus('NETWORK_ERROR');
-      setErrorMessage('Connexion impossible, réessayez');
+      setErrorMessage(L.networkError);
     }
-  }, [clearPolling, startPolling]);
+  }, [clearPolling, startPolling, L.networkError]);
 
   useEffect(() => {
     generateChallenge();
@@ -154,6 +158,7 @@ export default function LoginPage() {
     <div
       style={{
         minHeight: '100vh',
+        position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -187,11 +192,20 @@ export default function LoginPage() {
 
         {/* Heading */}
         <h1 style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic', fontSize: 28, fontWeight: 600, color: '#F4F1EE', margin: '0 0 12px', textAlign: 'center' }}>
-          Your wallet is your identity.
+          {L.heading}
         </h1>
         <p style={{ textAlign: 'center', fontSize: 15, color: '#A8A29B', margin: '0 0 32px', lineHeight: 1.5 }}>
-          No email. No password. Sign in with your<br />Bitcoin Lightning wallet.
+          {L.subheading1}<br />{L.subheading2}
         </p>
+
+        {/* Language toggle */}
+        <button
+          onClick={toggleLang}
+          title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+          style={{ position: 'absolute', top: 24, right: 24, border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', background: 'transparent', color: '#A8A29B', height: 32, borderRadius: 7, padding: '0 10px', fontSize: 12, fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.06em' }}
+        >
+          {lang === 'fr' ? 'EN' : 'FR'}
+        </button>
 
         {/* Main Card */}
         <div
@@ -211,7 +225,7 @@ export default function LoginPage() {
           {status === 'LOADING' && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
               <div style={{ width: 32, height: 32, border: '3px solid rgba(247,147,26,0.2)', borderTopColor: '#F7931A', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-              <span style={{ color: '#A8A29B', fontSize: 14 }}>Génération du challenge…</span>
+              <span style={{ color: '#A8A29B', fontSize: 14 }}>{L.generating}</span>
             </div>
           )}
 
@@ -220,8 +234,8 @@ export default function LoginPage() {
               <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(52,211,153,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 28, color: '#34D399' }}>check_circle</span>
               </div>
-              <span style={{ color: '#34D399', fontSize: 16, fontWeight: 600 }}>Connexion réussie !</span>
-              <span style={{ color: '#6F6A64', fontSize: 13 }}>Redirection en cours…</span>
+              <span style={{ color: '#34D399', fontSize: 16, fontWeight: 600 }}>{L.confirmed}</span>
+              <span style={{ color: '#6F6A64', fontSize: 13 }}>{L.redirecting}</span>
             </div>
           )}
 
@@ -233,13 +247,13 @@ export default function LoginPage() {
                 </span>
               </div>
               <span style={{ color: '#EF4444', fontSize: 15, fontWeight: 500, textAlign: 'center' }}>
-                {status === 'EXPIRED' ? 'QR code expiré' : errorMessage}
+                {status === 'EXPIRED' ? L.qrExpired : errorMessage}
               </span>
               <button
                 onClick={generateChallenge}
                 style={{ background: '#F7931A', border: 'none', borderRadius: 8, padding: '12px 24px', color: '#000', fontWeight: 600, fontSize: 14, cursor: 'pointer', width: '100%' }}
               >
-                Générer un nouveau QR
+                {L.newQr}
               </button>
             </div>
           )}
@@ -247,7 +261,7 @@ export default function LoginPage() {
           {status === 'PENDING' && (
             <>
               <span style={{ fontSize: 13, color: '#A8A29B', marginBottom: 20, fontWeight: 500 }}>
-                Scannez avec votre wallet Lightning
+                {L.scanPrompt}
               </span>
 
               {/* Real QR code */}
@@ -264,7 +278,7 @@ export default function LoginPage() {
                   onClick={copyToClipboard}
                   style={{ background: 'transparent', border: 'none', color: copied ? '#34D399' : '#F7931A', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0, flexShrink: 0 }}
                 >
-                  {copied ? '✓ Copié' : 'Copier'}
+                  {copied ? L.copied : L.copy}
                 </button>
               </div>
 
@@ -286,18 +300,18 @@ export default function LoginPage() {
                 ))}
               </div>
 
-              <span style={{ fontSize: 12, color: '#6F6A64', marginBottom: 24 }}>Any Lightning wallet works</span>
+              <span style={{ fontSize: 12, color: '#6F6A64', marginBottom: 24 }}>{L.anyWallet}</span>
 
               {/* Polling indicator */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F7931A', animation: 'sigpulse 2s infinite', boxShadow: '0 0 8px rgba(247,147,26,0.6)' }} />
-                <span style={{ fontSize: 13, color: '#F7931A', fontWeight: 500 }}>En attente de signature…</span>
+                <span style={{ fontSize: 13, color: '#F7931A', fontWeight: 500 }}>{L.waitingSignature}</span>
               </div>
 
               {/* Dev / demo button */}
               <div style={{ width: '100%', borderTop: '0.5px solid rgba(255,255,255,0.07)', paddingTop: 20 }}>
                 <div style={{ fontSize: 11, color: '#4A453F', textAlign: 'center', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'monospace' }}>
-                  Mode démo / hackathon
+                  {L.demoMode}
                 </div>
                 <button
                   onClick={handleDevConfirm}
@@ -320,8 +334,8 @@ export default function LoginPage() {
                   }}
                 >
                   {simulating
-                    ? <><span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid rgba(247,147,26,0.3)', borderTopColor: '#F7931A', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> Connexion…</>
-                    : <><span className="material-symbols-outlined" style={{ fontSize: 16 }}>bolt</span> Simuler scan wallet</>
+                    ? <><span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid rgba(247,147,26,0.3)', borderTopColor: '#F7931A', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> {L.connecting}</>
+                    : <><span className="material-symbols-outlined" style={{ fontSize: 16 }}>bolt</span> {L.simulateScan}</>
                   }
                 </button>
               </div>
@@ -333,14 +347,14 @@ export default function LoginPage() {
         <div style={{ display: 'flex', gap: 10, marginTop: 28, padding: '0 8px', alignItems: 'flex-start' }}>
           <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#6F6A64', marginTop: 1 }}>lock</span>
           <p style={{ fontSize: 12, color: '#6F6A64', lineHeight: 1.5, margin: 0 }}>
-            Sentinel ne demande jamais votre seed phrase. Votre wallet signe uniquement un challenge — aucun fonds n&apos;est envoyé.
+            {L.securityNotice}
           </p>
         </div>
 
         <div style={{ marginTop: 32 }}>
           <Link href="/signup" style={{ fontSize: 13, color: '#A8A29B', textDecoration: 'none' }}>
-            Pas encore de compte ?{' '}
-            <span style={{ color: '#F7931A', fontWeight: 600 }}>Créer un compte →</span>
+            {L.noAccount}{' '}
+            <span style={{ color: '#F7931A', fontWeight: 600 }}>{L.createAccount}</span>
           </Link>
         </div>
       </div>

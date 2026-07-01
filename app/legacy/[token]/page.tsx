@@ -3,6 +3,8 @@
 import React, { use, useState, useEffect } from 'react';
 import { api, type Testament, type Beneficiary, type EncryptedSecret } from '@/app/lib/api';
 import { decryptSecret } from '@/app/lib/crypto';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 type DecryptedSecret = {
   id: string;
@@ -13,6 +15,8 @@ type DecryptedSecret = {
 
 export default function BeneficiaryPortalPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = use(params);
+  const { lang, toggleLang } = useLanguage();
+  const L = translations[lang].legacy;
 
   // States
   const [testament, setTestament] = useState<Testament | null>(null);
@@ -40,13 +44,13 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
         setTestament(res.testament);
         setBeneficiary(res.beneficiary);
       } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : 'Erreur de chargement du portail.');
+        setErrorMsg(err instanceof Error ? err.message : L.loadError);
       } finally {
         setIsLoading(false);
       }
     };
     fetchPortalData();
-  }, [token]);
+  }, [token, L.loadError]);
 
   const handleVerifyQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +61,7 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
       await api.legacy.verifyQuestion(token, questionAnswer);
       setPortalStep(2); // Go to secret word entry
     } catch {
-      setErrorMsg('Réponse émotionnelle incorrecte (vérification non bloquante, vous pouvez continuer).');
+      setErrorMsg(L.questionWrongAnswer);
       setPortalStep(2); // Proceed anyway as it's non-blocking
     } finally {
       setIsVerifying(false);
@@ -96,7 +100,7 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
       setPortalStep(3); // Decryption success!
     } catch (err: unknown) {
       setAttemptsLeft((a) => Math.max(0, a - 1));
-      setErrorMsg(err instanceof Error ? err.message : 'Déchiffrement échoué. Le mot secret est incorrect.');
+      setErrorMsg(err instanceof Error ? err.message : L.decryptFailed);
     } finally {
       setIsVerifying(false);
     }
@@ -115,7 +119,7 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
   if (isLoading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
-        <div style={{ color: 'var(--text-muted)' }}>Chargement du portail bénéficiaire…</div>
+        <div style={{ color: 'var(--text-muted)' }}>{L.loading}</div>
       </div>
     );
   }
@@ -125,7 +129,7 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
           <span className="material-symbols-outlined" style={{ fontSize: 48, color: '#EF4444', marginBottom: 12 }}>error</span>
-          <h2 style={{ fontSize: 20, color: 'var(--text)' }}>Accès Non Autorisé</h2>
+          <h2 style={{ fontSize: 20, color: 'var(--text)' }}>{L.unauthorizedTitle}</h2>
           <p style={{ fontSize: 14, color: 'var(--text-dim)' }}>{errorMsg}</p>
         </div>
       </div>
@@ -147,7 +151,14 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
         padding: 20,
       }}
     >
-      <div style={{ width: '100%', maxWidth: 540 }}>
+      <div style={{ width: '100%', maxWidth: 540, position: 'relative' }}>
+        <button
+          onClick={toggleLang}
+          title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+          style={{ position: 'absolute', top: 0, right: 0, border: '1px solid var(--border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-dim)', height: 32, borderRadius: 7, padding: '0 10px', fontSize: 12, fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.06em' }}
+        >
+          {lang === 'fr' ? 'EN' : 'FR'}
+        </button>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div
@@ -166,10 +177,10 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
             <span style={{ fontFamily: 'Playfair Display, serif', fontWeight: 700, fontSize: 24, color: '#fff' }}>S</span>
           </div>
           <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 24, fontWeight: 600, color: 'var(--text)', margin: '0 0 6px' }}>
-            Portail de Succession Sentinel
+            {L.portalTitle}
           </h1>
           <p style={{ fontSize: 13, color: 'var(--text-dim)' }}>
-            Espace sécurisé de transmission d&apos;actifs numériques
+            {L.portalSubtitle}
           </p>
         </div>
 
@@ -184,7 +195,7 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
             }}
           >
             <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-soft)', marginBottom: 20 }}>
-              Statut du Testament Numérique
+              {L.statusTitle}
             </h2>
 
             {/* Timeline ECG graph representation */}
@@ -196,8 +207,8 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
                   <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--accent)' }}>publish</span>
                 </div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-soft)' }}>Testament Créé</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Ancrage Bitcoin permanent (OP_RETURN)</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-soft)' }}>{L.testamentCreated}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{L.testamentCreatedDesc}</div>
                 </div>
               </div>
 
@@ -209,10 +220,10 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
                 </div>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-soft)' }}>
-                    {isTriggered ? 'Absence confirmée' : 'Activité détectée (Testateur en vie)'}
+                    {isTriggered ? L.absenceConfirmed : L.activityDetected}
                   </div>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                    {isTriggered ? 'Le délai critique d\'inactivité a été dépassé.' : 'Le heartbeat Lightning est renouvelé régulièrement.'}
+                    {isTriggered ? L.absenceConfirmedDesc : L.activityDetectedDesc}
                   </div>
                 </div>
               </div>
@@ -221,7 +232,7 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
             {isTriggered ? (
               <div style={{ textAlign: 'center' }}>
                 <div style={{ background: 'rgba(239, 68, 68, 0.06)', border: '1px solid rgba(239, 68, 68, 0.15)', borderRadius: 10, padding: 14, marginBottom: 20, fontSize: 13, color: '#EF4444', lineHeight: 1.5 }}>
-                  <strong>Avis de déclenchement :</strong> Le testateur ne s&apos;est pas manifesté à temps. Ses secrets sont maintenant prêts à être révélés cryptographiquement.
+                  <strong>{L.triggerNoticeStrong}</strong> {L.triggerNoticeDesc}
                 </div>
                 <button
                   onClick={() => setPortalStep(beneficiary.secretQuestion ? 1 : 2)}
@@ -238,15 +249,15 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
                     boxShadow: '0 2px 12px rgba(var(--accent-rgb), 0.25)',
                   }}
                 >
-                  Démarrer la récupération →
+                  {L.startRecovery}
                 </button>
               </div>
             ) : (
               <div style={{ padding: '16px 20px', borderRadius: 12, background: 'var(--panel-inner)', border: '1px solid var(--border)', textAlign: 'center' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 32, color: 'var(--success)', marginBottom: 8, display: 'block' }}>lock</span>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-soft)', marginBottom: 4 }}>Secrets sécurisés</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-soft)', marginBottom: 4 }}>{L.secretsSecure}</div>
                 <p style={{ fontSize: 12, color: 'var(--text-dim)', margin: 0, lineHeight: 1.5 }}>
-                  Ce testament est actuellement ACTIF. Les données cryptées ne peuvent pas être déchiffrées ou révélées tant que le testateur confirme sa présence.
+                  {L.secretsSecureDesc}
                 </p>
               </div>
             )}
@@ -264,16 +275,16 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
             }}
           >
             <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-soft)', marginBottom: 8 }}>
-              Vérification d&apos;identité émotionnelle
+              {L.identityCheckTitle}
             </h2>
             <p style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: 20, lineHeight: 1.5 }}>
-              Le testateur a configuré une question secrète émotionnelle pour confirmer votre identité.
+              {L.identityCheckDesc}
             </p>
 
             <form onSubmit={handleVerifyQuestion}>
               <div style={{ marginBottom: 20, padding: 16, borderRadius: 10, background: 'var(--panel-inner)', border: '1px solid var(--border)' }}>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Question :
+                  {L.questionLabel}
                 </div>
                 <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-soft)', lineHeight: 1.5 }}>
                   {beneficiary.secretQuestion}
@@ -282,12 +293,12 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
 
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                  Votre réponse
+                  {L.answerLabel}
                 </label>
                 <input
                   value={questionAnswer}
                   onChange={(e) => setQuestionAnswer(e.target.value)}
-                  placeholder="Répondez à la question"
+                  placeholder={L.answerPlaceholder}
                   required
                   style={{
                     width: '100%',
@@ -318,7 +329,7 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
                     cursor: 'pointer',
                   }}
                 >
-                  Passer l&apos;étape
+                  {L.skipStep}
                 </button>
                 <button
                   type="submit"
@@ -336,7 +347,7 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
                     boxShadow: '0 2px 10px rgba(var(--accent-rgb), 0.2)',
                   }}
                 >
-                  Valider et continuer →
+                  {L.validateContinue}
                 </button>
               </div>
             </form>
@@ -354,11 +365,10 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
             }}
           >
             <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-soft)', marginBottom: 8 }}>
-              Déchiffrement Cryptographique
+              {L.decryptTitle}
             </h2>
             <p style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: 20, lineHeight: 1.5 }}>
-              Entrez le <strong>mot secret</strong> (le 25ème mot) communiqué de vive voix par le testateur.
-              Cette clé est indispensable pour déchiffrer les données dans votre navigateur.
+              {L.decryptDescPrefix} <strong>{L.decryptDescStrong}</strong> {L.decryptDescSuffix}
             </p>
 
             <form onSubmit={handleUnlockSecrets}>
@@ -370,13 +380,13 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
 
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                  Mot secret
+                  {L.secretWordLabel}
                 </label>
                 <input
                   type="password"
                   value={secretWord}
                   onChange={(e) => setSecretWord(e.target.value)}
-                  placeholder="Entrez le mot secret de déchiffrement"
+                  placeholder={L.secretWordPlaceholder}
                   required
                   style={{
                     width: '100%',
@@ -391,9 +401,9 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
                   }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
-                  <span>Rate limiting actif (5 tentatives max/heure)</span>
+                  <span>{L.rateLimitNote}</span>
                   <span style={{ color: attemptsLeft <= 2 ? '#EF4444' : 'var(--text-muted)' }}>
-                    Tentatives restantes : {attemptsLeft}
+                    {L.attemptsLeft} {attemptsLeft}
                   </span>
                 </div>
               </div>
@@ -414,7 +424,7 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
                   boxShadow: attemptsLeft > 0 ? '0 2px 12px rgba(var(--accent-rgb), 0.25)' : 'none',
                 }}
               >
-                {isVerifying ? 'Dérivation PBKDF2 et déchiffrement…' : '🔐 Déverrouiller et révéler'}
+                {isVerifying ? L.decrypting : L.unlockCta}
               </button>
             </form>
           </div>
@@ -432,10 +442,10 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
           >
             <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--success)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span className="material-symbols-outlined" style={{ fontSize: 20 }}>verified_user</span>
-              Déchiffrement réussi !
+              {L.decryptSuccess}
             </h2>
             <p style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: 24, lineHeight: 1.5 }}>
-              Voici les secrets transmis en toute sécurité. Sauvegardez-les immédiatement dans un endroit sûr.
+              {L.decryptSuccessDesc}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -507,7 +517,7 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
                         <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                           {isVisible ? 'visibility_off' : 'visibility'}
                         </span>
-                        {isVisible ? 'Masquer' : 'Afficher'}
+                        {isVisible ? L.hide : L.show}
                       </button>
 
                       <button
@@ -529,7 +539,7 @@ export default function BeneficiaryPortalPage({ params }: { params: Promise<{ to
                         }}
                       >
                         <span className="material-symbols-outlined" style={{ fontSize: 16 }}>download</span>
-                        Télécharger
+                        {L.download}
                       </button>
                     </div>
                   </div>

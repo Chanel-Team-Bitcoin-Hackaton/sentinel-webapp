@@ -4,19 +4,14 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 interface NavItem {
   label: string;
   href: string;
   icon: string;
 }
-
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
-  { label: 'Secrets', href: '/dashboard/secrets', icon: 'lock' },
-  { label: 'Bénéficiaire', href: '/dashboard/beneficiary', icon: 'person' },
-  { label: 'Historique', href: '/dashboard/history', icon: 'history' },
-];
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -27,6 +22,15 @@ interface SidebarProps {
 export default function Sidebar({ isOpen = false, isMobile = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { lang } = useLanguage();
+  const L = translations[lang].sidebar;
+
+  const NAV_ITEMS: NavItem[] = [
+    { label: L.dashboard, href: '/dashboard', icon: 'dashboard' },
+    { label: L.secrets, href: '/dashboard/secrets', icon: 'lock' },
+    { label: L.beneficiary, href: '/dashboard/beneficiary', icon: 'person' },
+    { label: L.history, href: '/dashboard/history', icon: 'history' },
+  ];
 
   const handleLinkClick = () => {
     if (isMobile && onClose) {
@@ -209,7 +213,7 @@ export default function Sidebar({ isOpen = false, isMobile = false, onClose }: S
             >
               {user?.email || 'testateur@sentinel.btc'}
             </div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Testateur</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{L.testator}</div>
           </div>
         </div>
 
@@ -236,7 +240,7 @@ export default function Sidebar({ isOpen = false, isMobile = false, onClose }: S
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
             logout
           </span>
-          Déconnexion
+          {L.logout}
         </button>
       </div>
     </aside>

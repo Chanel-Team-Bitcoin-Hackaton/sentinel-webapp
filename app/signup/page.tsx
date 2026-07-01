@@ -4,10 +4,14 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 export default function SignupPage() {
   const { signup, isLoading, error, clearError } = useAuth();
   const router = useRouter();
+  const { lang, toggleLang } = useLanguage();
+  const L = translations[lang].signup;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,11 +26,11 @@ export default function SignupPage() {
     setLocalError('');
 
     if (password !== confirmPassword) {
-      setLocalError('Les mots de passe ne correspondent pas.');
+      setLocalError(L.passwordMismatch);
       return;
     }
     if (password.length < 8) {
-      setLocalError('Le mot de passe doit comporter au moins 8 caractères.');
+      setLocalError(L.passwordTooShort);
       return;
     }
 
@@ -65,7 +69,14 @@ export default function SignupPage() {
           padding: 20,
         }}
       >
-        <div style={{ width: '100%', maxWidth: 480 }}>
+        <div style={{ width: '100%', maxWidth: 480, position: 'relative' }}>
+          <button
+            onClick={toggleLang}
+            title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+            style={{ position: 'absolute', top: -44, right: 0, border: '1px solid var(--border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-dim)', height: 32, borderRadius: 7, padding: '0 10px', fontSize: 12, fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.06em' }}
+          >
+            {lang === 'fr' ? 'EN' : 'FR'}
+          </button>
           <div
             style={{
               background: 'var(--panel)',
@@ -104,11 +115,10 @@ export default function SignupPage() {
                 marginBottom: 8,
               }}
             >
-              Compte créé avec succès
+              {L.nsecTitle}
             </h2>
             <p style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: 24, lineHeight: 1.6 }}>
-              Votre clé Nostr a été générée de manière déterministe. Conservez-la précieusement — elle est
-              liée à votre identité cryptographique.
+              {L.nsecDesc}
             </p>
 
             {/* nsec display */}
@@ -123,7 +133,7 @@ export default function SignupPage() {
               }}
             >
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Clé privée Nostr (nsec)
+                {L.nsecLabel}
               </div>
               <div
                 style={{
@@ -160,7 +170,7 @@ export default function SignupPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                   {nsecCopied ? 'check' : 'content_copy'}
                 </span>
-                {nsecCopied ? 'Copié !' : 'Copier'}
+                {nsecCopied ? L.copied : L.copy}
               </button>
               <button
                 onClick={() => router.push('/setup')}
@@ -177,7 +187,7 @@ export default function SignupPage() {
                   boxShadow: '0 2px 12px rgba(var(--accent-rgb), 0.25)',
                 }}
               >
-                Continuer la configuration →
+                {L.continueSetup}
               </button>
             </div>
           </div>
@@ -197,7 +207,14 @@ export default function SignupPage() {
         padding: 20,
       }}
     >
-      <div style={{ width: '100%', maxWidth: 420 }}>
+      <div style={{ width: '100%', maxWidth: 420, position: 'relative' }}>
+        <button
+          onClick={toggleLang}
+          title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+          style={{ position: 'absolute', top: 0, right: 0, border: '1px solid var(--border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-dim)', height: 32, borderRadius: 7, padding: '0 10px', fontSize: 12, fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.06em' }}
+        >
+          {lang === 'fr' ? 'EN' : 'FR'}
+        </button>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <div
@@ -226,10 +243,10 @@ export default function SignupPage() {
               margin: '0 0 6px',
             }}
           >
-            Créer un compte
+            {L.heading}
           </h1>
           <p style={{ fontSize: 14, color: 'var(--text-dim)' }}>
-            Protégez vos secrets avec la puissance de Bitcoin
+            {L.tagline}
           </p>
         </div>
 
@@ -264,14 +281,14 @@ export default function SignupPage() {
 
             <div style={{ marginBottom: 18 }}>
               <label htmlFor="signup-email" style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                Adresse email
+                {L.emailLabel}
               </label>
               <input
                 id="signup-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="testateur@example.com"
+                placeholder={L.emailPlaceholder}
                 required
                 style={{
                   width: '100%',
@@ -289,7 +306,7 @@ export default function SignupPage() {
 
             <div style={{ marginBottom: 18 }}>
               <label htmlFor="signup-password" style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                Mot de passe
+                {L.passwordLabel}
               </label>
               <div style={{ position: 'relative' }}>
                 <input
@@ -297,7 +314,7 @@ export default function SignupPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimum 8 caractères"
+                  placeholder={L.passwordPlaceholder}
                   required
                   style={{
                     width: '100%',
@@ -335,14 +352,14 @@ export default function SignupPage() {
 
             <div style={{ marginBottom: 24 }}>
               <label htmlFor="signup-confirm" style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                Confirmer le mot de passe
+                {L.confirmLabel}
               </label>
               <input
                 id="signup-confirm"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Même mot de passe"
+                placeholder={L.confirmPlaceholder}
                 required
                 style={{
                   width: '100%',
@@ -375,15 +392,15 @@ export default function SignupPage() {
                 boxShadow: '0 2px 12px rgba(var(--accent-rgb), 0.25)',
               }}
             >
-              {isLoading ? 'Création…' : 'Créer mon testament'}
+              {isLoading ? L.creating : L.submit}
             </button>
           </form>
         </div>
 
         <p style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: 'var(--text-muted)' }}>
-          Déjà un compte ?{' '}
+          {L.haveAccount}{' '}
           <Link href="/login" style={{ color: 'var(--accent-ink)', textDecoration: 'none', fontWeight: 500 }}>
-            Se connecter
+            {L.signIn}
           </Link>
         </p>
       </div>

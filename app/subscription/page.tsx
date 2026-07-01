@@ -3,11 +3,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/app/lib/api';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 type Status = 'loading' | 'waiting' | 'paid' | 'error';
 
 export default function SubscriptionPage() {
   const router = useRouter();
+  const { lang, toggleLang } = useLanguage();
+  const L = translations[lang].subscription;
   const [status, setStatus] = useState<Status>('loading');
   const [invoice, setInvoice] = useState('');
   const [paymentHash, setPaymentHash] = useState('');
@@ -26,10 +30,10 @@ export default function SubscriptionPage() {
       setAmountSats(res.amountSats);
       setStatus('waiting');
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : "Impossible de générer l'invoice.");
+      setErrorMsg(err instanceof Error ? err.message : L.invoiceError);
       setStatus('error');
     }
-  }, []);
+  }, [L.invoiceError]);
 
   useEffect(() => {
     loadInvoice();
@@ -79,7 +83,14 @@ export default function SubscriptionPage() {
         @keyframes confetti { 0%{transform:scale(0.8);opacity:0} 60%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
       `}</style>
 
-      <div style={{ width: '100%', maxWidth: 420, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 420, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+        <button
+          onClick={toggleLang}
+          title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+          style={{ position: 'absolute', top: -8, right: 0, border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', background: 'transparent', color: '#A8A29B', height: 32, borderRadius: 7, padding: '0 10px', fontSize: 12, fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.06em' }}
+        >
+          {lang === 'fr' ? 'EN' : 'FR'}
+        </button>
 
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 40 }}>
@@ -113,11 +124,11 @@ export default function SubscriptionPage() {
             textAlign: 'center',
           }}
         >
-          Activez votre testament
+          {L.heading}
         </h1>
         <p style={{ fontSize: 14, color: '#A8A29B', textAlign: 'center', margin: '0 0 32px', lineHeight: 1.55 }}>
-          Un abonnement annuel unique vous donne accès à la protection Sentinel.<br />
-          Paiement en satoshis via Lightning — aucune carte, aucun email.
+          {L.desc1}<br />
+          {L.desc2}
         </p>
 
         {/* Card */}
@@ -143,7 +154,7 @@ export default function SubscriptionPage() {
                   animation: 'spin 0.9s linear infinite',
                 }}
               />
-              <span style={{ fontSize: 13, color: '#6F6A64' }}>Génération de l'invoice…</span>
+              <span style={{ fontSize: 13, color: '#6F6A64' }}>{L.generating}</span>
             </div>
           )}
 
@@ -165,11 +176,11 @@ export default function SubscriptionPage() {
                 <span style={{ fontSize: 28, fontWeight: 700, color: '#F7931A', fontFamily: 'JetBrains Mono, monospace' }}>
                   {amountSats.toLocaleString()}
                 </span>
-                <span style={{ fontSize: 14, color: '#A8A29B', fontWeight: 500 }}>sats</span>
+                <span style={{ fontSize: 14, color: '#A8A29B', fontWeight: 500 }}>{L.sats}</span>
               </div>
 
               <p style={{ fontSize: 12, color: '#6F6A64', margin: '0 0 24px' }}>
-                ≈ 1 an d'accès · renouvelable à tout moment
+                {L.accessNote}
               </p>
 
               {/* QR placeholder */}
@@ -238,7 +249,7 @@ export default function SubscriptionPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                   {copied ? 'check' : 'content_copy'}
                 </span>
-                {copied ? 'Copié !' : "Copier l'invoice"}
+                {copied ? L.copied : L.copy}
               </button>
 
               {/* Wallet suggestions */}
@@ -294,7 +305,7 @@ export default function SubscriptionPage() {
                 }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 14 }}>hourglass_top</span>
-                En attente du paiement Lightning…
+                {L.waitingPayment}
               </div>
             </>
           )}
@@ -321,10 +332,10 @@ export default function SubscriptionPage() {
                 </span>
               </div>
               <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, color: '#34D399', margin: 0 }}>
-                Abonnement activé !
+                {L.activated}
               </h3>
               <p style={{ fontSize: 13, color: '#A8A29B', margin: 0 }}>
-                Redirection vers la configuration…
+                {L.redirecting}
               </p>
             </div>
           )}
@@ -346,7 +357,7 @@ export default function SubscriptionPage() {
                   cursor: 'pointer',
                 }}
               >
-                Réessayer
+                {L.retry}
               </button>
             </div>
           )}
@@ -356,7 +367,7 @@ export default function SubscriptionPage() {
         <div style={{ marginTop: 24, display: 'flex', gap: 10, alignItems: 'flex-start', padding: '0 8px' }}>
           <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#6F6A64', marginTop: 1, flexShrink: 0 }}>lock</span>
           <p style={{ fontSize: 12, color: '#6F6A64', margin: 0, lineHeight: 1.5 }}>
-            Paiement Lightning anonyme. Sentinel ne collecte aucune donnée personnelle liée à ce paiement.
+            {L.trustNote}
           </p>
         </div>
       </div>

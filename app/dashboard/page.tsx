@@ -7,11 +7,15 @@ import { useTestament } from '@/app/context/TestamentContext';
 import DashboardLayout from '@/app/components/DashboardLayout';
 import HeartbeatCard from '@/app/components/HeartbeatCard';
 import LNInvoiceModal from '@/app/components/LNInvoiceModal';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 export default function DashboardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { testament, secrets, beneficiary, checkins, isLoading, refresh } = useTestament();
   const router = useRouter();
+  const { lang } = useLanguage();
+  const L = translations[lang].dashboard;
   const [showInvoice, setShowInvoice] = useState(false);
 
   useEffect(() => {
@@ -33,9 +37,9 @@ export default function DashboardPage() {
 
   if (authLoading || isLoading) {
     return (
-      <DashboardLayout title="Dashboard">
+      <DashboardLayout title={L.title}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400, color: 'var(--text-muted)' }}>
-          Chargement…
+          {L.loading}
         </div>
       </DashboardLayout>
     );
@@ -43,7 +47,7 @@ export default function DashboardPage() {
 
   if (!testament) {
     return (
-      <DashboardLayout title="Dashboard" subtitle="Bienvenue sur Sentinel">
+      <DashboardLayout title={L.title} subtitle={L.welcomeSubtitle}>
         <div
           style={{
             background: 'var(--panel)',
@@ -59,10 +63,10 @@ export default function DashboardPage() {
             shield
           </span>
           <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>
-            Aucun testament configuré
+            {L.noTestamentTitle}
           </h2>
           <p style={{ fontSize: 14, color: 'var(--text-dim)', marginBottom: 24, lineHeight: 1.6 }}>
-            Créez votre premier testament numérique pour protéger vos secrets avec la puissance de Bitcoin.
+            {L.noTestamentDesc}
           </p>
           <button
             onClick={() => router.push('/setup')}
@@ -78,7 +82,7 @@ export default function DashboardPage() {
               boxShadow: '0 2px 12px rgba(var(--accent-rgb), 0.25)',
             }}
           >
-            Configurer mon testament →
+            {L.configureCta}
           </button>
         </div>
       </DashboardLayout>
@@ -86,7 +90,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <DashboardLayout title="Dashboard" subtitle="Vue d'ensemble de votre testament numérique">
+    <DashboardLayout title={L.title} subtitle={L.overviewSubtitle}>
       {/* Heartbeat Card */}
       <HeartbeatCard
         status={testament.status}
@@ -116,7 +120,7 @@ export default function DashboardPage() {
             gap: 8,
           }}
         >
-          ⚡ Confirmer ma présence — 1 sat
+          {L.checkinCta}
         </button>
       </div>
 
@@ -126,25 +130,25 @@ export default function DashboardPage() {
         <div style={{ background: 'var(--panel)', border: '1px solid var(--border)', borderRadius: 14, padding: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--accent-ink)' }}>lock</span>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Secrets</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{L.secrets}</span>
           </div>
           <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 700, color: 'var(--text)' }}>
             {secrets.length}
           </div>
-          <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>secret{secrets.length !== 1 ? 's' : ''} chiffré{secrets.length !== 1 ? 's' : ''}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>{secrets.length !== 1 ? L.secretPlural : L.secretSingular}</div>
         </div>
 
         {/* Beneficiary */}
         <div style={{ background: 'var(--panel)', border: '1px solid var(--border)', borderRadius: 14, padding: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--accent-ink)' }}>person</span>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Bénéficiaire</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{L.beneficiary}</span>
           </div>
           <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>
             {beneficiary ? beneficiary.name : '—'}
           </div>
           <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>
-            {beneficiary ? beneficiary.email : 'Non désigné'}
+            {beneficiary ? beneficiary.email : L.notDesignated}
           </div>
         </div>
 
@@ -152,12 +156,12 @@ export default function DashboardPage() {
         <div style={{ background: 'var(--panel)', border: '1px solid var(--border)', borderRadius: 14, padding: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--accent-ink)' }}>history</span>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Check-ins</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{L.checkins}</span>
           </div>
           <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 700, color: 'var(--text)' }}>
             {checkins.filter((c) => c.status === 'PAID').length}
           </div>
-          <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>confirmation{checkins.length !== 1 ? 's' : ''} cryptographique{checkins.length !== 1 ? 's' : ''}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>{checkins.length !== 1 ? L.confirmationPlural : L.confirmationSingular}</div>
         </div>
       </div>
 
@@ -167,7 +171,7 @@ export default function DashboardPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
             <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--accent-ink)' }}>link</span>
             <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Ancrage Bitcoin
+              {L.bitcoinAnchor}
             </span>
           </div>
           <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: 'var(--text-dim)', wordBreak: 'break-all' }}>

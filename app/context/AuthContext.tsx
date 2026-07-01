@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { api, type User, type AuthResponse } from '@/app/lib/api';
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 interface AuthState {
   user: User | null;
@@ -21,6 +23,8 @@ interface AuthContextValue extends AuthState {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { lang } = useLanguage();
+  const L = translations[lang].authErrors;
   const [state, setState] = useState<AuthState>({
     user: null,
     isLoading: true,
@@ -35,11 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setState({ user: result.user, isLoading: false, isAuthenticated: true, error: null });
       return result;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Erreur lors de la création du compte.';
+      const message = err instanceof Error ? err.message : L.signupFailed;
       setState((prev) => ({ ...prev, isLoading: false, error: message }));
       throw err;
     }
-  }, []);
+  }, [L.signupFailed]);
 
   const login = useCallback(async (email: string, password: string): Promise<AuthResponse> => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
@@ -48,11 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setState({ user: result.user, isLoading: false, isAuthenticated: true, error: null });
       return result;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Email ou mot de passe incorrect.';
+      const message = err instanceof Error ? err.message : L.loginFailed;
       setState((prev) => ({ ...prev, isLoading: false, error: message }));
       throw err;
     }
-  }, []);
+  }, [L.loginFailed]);
 
   const refreshSession = useCallback(async () => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));

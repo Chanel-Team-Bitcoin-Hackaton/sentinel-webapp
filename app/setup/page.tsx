@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTestament } from '@/app/context/TestamentContext';
 import { encryptSecret, validateSecretStrength } from '@/app/lib/crypto';
-
-const STEPS = ['Délai', 'Secrets', 'Bénéficiaire', 'Question', 'Ancrage', 'Checklist'];
+import { useLanguage } from '@/app/context/LanguageContext';
+import { translations } from '@/app/lib/translations';
 
 type SecretEntry = {
   title: string;
@@ -16,6 +16,9 @@ type SecretEntry = {
 export default function SetupPage() {
   const router = useRouter();
   const { createTestament, addSecret, upsertBeneficiary } = useTestament();
+  const { lang } = useLanguage();
+  const L = translations[lang].setup;
+  const STEPS = L.steps;
 
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -78,7 +81,7 @@ export default function SetupPage() {
       setStep(4); // Go to anchor step
     } catch (err) {
       console.error(err);
-      alert('Erreur lors de la configuration. Vérifiez les données saisies.');
+      alert(L.creationError);
     } finally {
       setIsSubmitting(false);
     }
@@ -106,11 +109,10 @@ export default function SetupPage() {
         return (
           <div>
             <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>
-              Choisissez votre délai de sécurité
+              {L.delayTitle}
             </h2>
             <p style={{ fontSize: 14, color: 'var(--text-dim)', marginBottom: 28, lineHeight: 1.6 }}>
-              Si vous ne confirmez pas votre présence avant ce délai, votre testament sera activé et vos secrets
-              transmis à votre bénéficiaire.
+              {L.delayDesc}
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: 12 }}>
@@ -131,7 +133,7 @@ export default function SetupPage() {
                   <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 700, color: delayDays === days ? 'var(--accent-ink)' : 'var(--text)' }}>
                     {days}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>jours</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>{L.days}</div>
                 </button>
               ))}
             </div>
@@ -139,7 +141,7 @@ export default function SetupPage() {
             <div style={{ marginTop: 20, padding: '12px 16px', borderRadius: 10, background: 'var(--panel-inner)', border: '1px solid var(--border)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-muted)' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--accent-ink)' }}>info</span>
-                Un check-in Lightning de 1 sat sera requis avant chaque échéance pour prouver que vous êtes vivant.
+                {L.delayNote}
               </div>
             </div>
           </div>
@@ -149,23 +151,22 @@ export default function SetupPage() {
         return (
           <div>
             <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>
-              Déposez vos secrets
+              {L.secretsTitle}
             </h2>
             <p style={{ fontSize: 14, color: 'var(--text-dim)', marginBottom: 24, lineHeight: 1.6 }}>
-              Vos données seront chiffrées localement avec le <strong>mot secret</strong> que vous choisirez.
-              Le serveur ne verra jamais vos données en clair (Zéro-Knowledge).
+              {L.secretsDescPrefix} <strong>{L.secretsDescStrong}</strong> {L.secretsDescSuffix}
             </p>
 
             {/* Secret word */}
             <div style={{ marginBottom: 20, padding: 20, borderRadius: 12, background: 'var(--panel-inner)', border: '1px solid var(--border)' }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--accent-ink)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                🔑 Mot secret (le « 25ème mot »)
+                {L.secretWordLabel}
               </label>
               <input
                 type="password"
                 value={secretWord}
                 onChange={(e) => setSecretWord(e.target.value)}
-                placeholder="Choisissez un mot secret fort et mémorable"
+                placeholder={L.secretWordPlaceholder}
                 style={{
                   width: '100%',
                   padding: '11px 14px',
@@ -197,7 +198,7 @@ export default function SetupPage() {
                     ))}
                   </div>
                   <span style={{ fontSize: 11, color: secretStrength.isValid ? 'var(--success)' : '#EF4444' }}>
-                    {secretStrength.message || (secretStrength.score >= 4 ? 'Excellent' : secretStrength.score >= 3 ? 'Bon' : 'Moyen')}
+                    {secretStrength.message || (secretStrength.score >= 4 ? L.strengthExcellent : secretStrength.score >= 3 ? L.strengthGood : L.strengthMedium)}
                   </span>
                 </div>
               )}
@@ -205,7 +206,7 @@ export default function SetupPage() {
                 type="password"
                 value={secretWordConfirm}
                 onChange={(e) => setSecretWordConfirm(e.target.value)}
-                placeholder="Confirmez le mot secret"
+                placeholder={L.secretWordConfirmPlaceholder}
                 style={{
                   width: '100%',
                   padding: '11px 14px',
@@ -225,7 +226,7 @@ export default function SetupPage() {
             {secretEntries.map((entry, i) => (
               <div key={i} style={{ marginBottom: 16, padding: 16, borderRadius: 12, background: 'var(--panel-inner)', border: '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-soft)' }}>Secret #{i + 1}</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-soft)' }}>{L.secretLabel} #{i + 1}</span>
                   {secretEntries.length > 1 && (
                     <button onClick={() => removeSecretEntry(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 2 }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
@@ -235,7 +236,7 @@ export default function SetupPage() {
                 <input
                   value={entry.title}
                   onChange={(e) => updateSecretEntry(i, 'title', e.target.value)}
-                  placeholder="Titre du secret (ex: Seed Wallet Ledger)"
+                  placeholder={L.secretTitlePlaceholder}
                   style={{
                     width: '100%',
                     padding: '9px 12px',
@@ -265,19 +266,15 @@ export default function SetupPage() {
                     boxSizing: 'border-box',
                   }}
                 >
-                  <option value="SEED">Seed BIP-39 (24 mots)</option>
-                  <option value="TEXT">Texte libre</option>
-                  <option value="CREDENTIALS">Identifiants</option>
-                  <option value="PDF">Document PDF</option>
+                  <option value="SEED">{L.typeSeed}</option>
+                  <option value="TEXT">{L.typeText}</option>
+                  <option value="CREDENTIALS">{L.typeCredentials}</option>
+                  <option value="PDF">{L.typePdf}</option>
                 </select>
                 <textarea
                   value={entry.plaintext}
                   onChange={(e) => updateSecretEntry(i, 'plaintext', e.target.value)}
-                  placeholder={
-                    entry.type === 'SEED'
-                      ? 'abandon ability able about above absent absorb abstract absurd abuse access accident...'
-                      : 'Contenu du secret…'
-                  }
+                  placeholder={entry.type === 'SEED' ? L.seedPlaceholder : L.contentPlaceholder}
                   rows={3}
                   style={{
                     width: '100%',
@@ -314,7 +311,7 @@ export default function SetupPage() {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
-              Ajouter un secret
+              {L.addSecret}
             </button>
           </div>
         );
@@ -323,46 +320,45 @@ export default function SetupPage() {
         return (
           <div>
             <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>
-              Désignez votre bénéficiaire
+              {L.beneficiaryTitle}
             </h2>
             <p style={{ fontSize: 14, color: 'var(--text-dim)', marginBottom: 24, lineHeight: 1.6 }}>
-              Cette personne recevra une notification et un lien sécurisé pour accéder à vos secrets si le testament
-              est déclenché.
+              {L.beneficiaryDesc}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                  Nom complet
+                  {L.fullNameLabel}
                 </label>
                 <input
                   value={benName}
                   onChange={(e) => setBenName(e.target.value)}
-                  placeholder="Koffi Adjovi"
+                  placeholder={L.fullNamePlaceholder}
                   style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--panel-inner)', color: 'var(--text)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
                 />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                  Email
+                  {L.emailLabel}
                 </label>
                 <input
                   type="email"
                   value={benEmail}
                   onChange={(e) => setBenEmail(e.target.value)}
-                  placeholder="beneficiaire@example.com"
+                  placeholder={L.emailPlaceholder}
                   style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--panel-inner)', color: 'var(--text)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
                 />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-dim)', marginBottom: 6 }}>
-                  Téléphone (optionnel — SMS UEMOA)
+                  {L.phoneLabel}
                 </label>
                 <input
                   type="tel"
                   value={benPhone}
                   onChange={(e) => setBenPhone(e.target.value)}
-                  placeholder="+228 90 00 00 00"
+                  placeholder={L.phonePlaceholder}
                   style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--panel-inner)', color: 'var(--text)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
                 />
               </div>
@@ -374,17 +370,16 @@ export default function SetupPage() {
         return (
           <div>
             <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>
-              Question secrète émotionnelle
+              {L.questionTitle}
             </h2>
             <p style={{ fontSize: 14, color: 'var(--text-dim)', marginBottom: 24, lineHeight: 1.6 }}>
-              Cette question est optionnelle et non bloquante. Elle sert à vérifier émotionnellement l&apos;identité du
-              bénéficiaire avant de lui demander le mot secret.
+              {L.questionDesc}
             </p>
 
             <textarea
               value={secretQuestion}
               onChange={(e) => setSecretQuestion(e.target.value)}
-              placeholder="Ex: Quel est le nom de la chèvre préférée de mon grand-père ?"
+              placeholder={L.questionPlaceholder}
               rows={3}
               style={{
                 width: '100%',
@@ -403,7 +398,7 @@ export default function SetupPage() {
 
             <div style={{ marginTop: 16, padding: '12px 16px', borderRadius: 10, background: 'var(--panel-inner)', border: '1px solid var(--border)', fontSize: 12, color: 'var(--text-muted)', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
               <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--accent-ink)', flexShrink: 0, marginTop: 1 }}>tips_and_updates</span>
-              <span>Choisissez une question dont seul votre bénéficiaire connaît la réponse. La réponse ne bloque pas le processus mais ajoute une couche de confiance émotionnelle.</span>
+              <span>{L.questionHint}</span>
             </div>
           </div>
         );
@@ -429,11 +424,10 @@ export default function SetupPage() {
             </div>
 
             <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>
-              Ancrage Bitcoin confirmé
+              {L.anchorTitle}
             </h2>
             <p style={{ fontSize: 14, color: 'var(--text-dim)', marginBottom: 24, lineHeight: 1.6 }}>
-              Votre testament a été ancré sur la blockchain Bitcoin via une transaction OP_RETURN.
-              Cette preuve d&apos;existence est immuable.
+              {L.anchorDesc}
             </p>
 
             {anchorTxid && (
@@ -447,7 +441,7 @@ export default function SetupPage() {
                 }}
               >
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Transaction ID (Testnet4)
+                  {L.txidLabel}
                 </div>
                 <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: 'var(--accent-ink)', wordBreak: 'break-all' }}>
                   {anchorTxid}
@@ -461,17 +455,17 @@ export default function SetupPage() {
         return (
           <div>
             <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>
-              Checklist finale
+              {L.checklistTitle}
             </h2>
             <p style={{ fontSize: 14, color: 'var(--text-dim)', marginBottom: 24, lineHeight: 1.6 }}>
-              Avant de finaliser, assurez-vous d&apos;avoir accompli ces actions essentielles hors-ligne :
+              {L.checklistDesc}
             </p>
 
             {[
-              { icon: 'key', label: 'Communiquer le mot secret de vive voix à votre bénéficiaire' },
-              { icon: 'description', label: 'Remettre le guide PDF d\'utilisation du portail à votre bénéficiaire' },
-              { icon: 'backup', label: 'Sauvegarder votre clé Nostr (nsec) dans un lieu sûr' },
-              { icon: 'verified_user', label: 'Vérifier que le bénéficiaire a bien reçu l\'email de notification' },
+              { icon: 'key', label: L.checklistItems[0] },
+              { icon: 'description', label: L.checklistItems[1] },
+              { icon: 'backup', label: L.checklistItems[2] },
+              { icon: 'verified_user', label: L.checklistItems[3] },
             ].map((item, i) => (
               <div
                 key={i}
@@ -536,7 +530,7 @@ export default function SetupPage() {
 
         {/* Step indicator */}
         <div style={{ marginBottom: 8, fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'JetBrains Mono, monospace' }}>
-          Étape {step + 1} / {STEPS.length} — {STEPS[step]}
+          {L.stepIndicator} {step + 1} / {STEPS.length} — {STEPS[step]}
         </div>
 
         {/* Card */}
@@ -569,7 +563,7 @@ export default function SetupPage() {
               opacity: step === 0 ? 0.5 : 1,
             }}
           >
-            ← Retour
+            {L.back}
           </button>
 
           {step < 3 ? (
@@ -588,7 +582,7 @@ export default function SetupPage() {
                 boxShadow: canProceed() ? '0 2px 12px rgba(var(--accent-rgb), 0.25)' : 'none',
               }}
             >
-              Suivant →
+              {L.next}
             </button>
           ) : step === 3 ? (
             <button
@@ -607,7 +601,7 @@ export default function SetupPage() {
                 boxShadow: '0 2px 12px rgba(var(--accent-rgb), 0.25)',
               }}
             >
-              {isSubmitting ? 'Création en cours…' : '🔐 Chiffrer et créer le testament'}
+              {isSubmitting ? L.creating : L.submit}
             </button>
           ) : step === 5 ? (
             <button
@@ -624,7 +618,7 @@ export default function SetupPage() {
                 boxShadow: '0 2px 12px rgba(var(--accent-rgb), 0.25)',
               }}
             >
-              Accéder au Dashboard →
+              {L.goToDashboard}
             </button>
           ) : (
             <button
@@ -641,7 +635,7 @@ export default function SetupPage() {
                 boxShadow: '0 2px 12px rgba(var(--accent-rgb), 0.25)',
               }}
             >
-              Suivant →
+              {L.next}
             </button>
           )}
         </div>
