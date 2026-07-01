@@ -4,12 +4,15 @@ import React, { use, useState, useEffect } from 'react';
 import LNInvoiceModal from '@/app/components/LNInvoiceModal';
 import { api, type Testament } from '@/app/lib/api';
 import { useLanguage } from '@/app/context/LanguageContext';
+import { useTheme } from '@/app/context/ThemeContext';
 import { translations } from '@/app/lib/translations';
 
 export default function PublicCheckinPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: testamentId } = use(params);
   const { lang, toggleLang } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const L = translations[lang].checkin;
+  const LD = translations[lang].dashboardLayout;
   const [testament, setTestament] = useState<Testament | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
@@ -88,13 +91,22 @@ export default function PublicCheckinPage({ params }: { params: Promise<{ id: st
       }}
     >
       <div style={{ width: '100%', maxWidth: 440, position: 'relative' }}>
-        <button
-          onClick={toggleLang}
-          title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
-          style={{ position: 'absolute', top: 0, right: 0, border: '1px solid var(--border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-dim)', height: 32, borderRadius: 7, padding: '0 10px', fontSize: 12, fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.06em' }}
-        >
-          {lang === 'fr' ? 'EN' : 'FR'}
-        </button>
+        <div style={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: 8 }}>
+          <button
+            onClick={toggleTheme}
+            title={theme === 'dark' ? LD.lightMode : LD.darkMode}
+            style={{ border: '1px solid var(--border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-dim)', width: 32, height: 32, borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+          </button>
+          <button
+            onClick={toggleLang}
+            title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+            style={{ border: '1px solid var(--border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-dim)', height: 32, borderRadius: 7, padding: '0 10px', fontSize: 12, fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.06em' }}
+          >
+            {lang === 'fr' ? 'EN' : 'FR'}
+          </button>
+        </div>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div

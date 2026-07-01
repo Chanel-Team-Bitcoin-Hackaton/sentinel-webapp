@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTestament } from '@/app/context/TestamentContext';
 import { encryptSecret, validateSecretStrength } from '@/app/lib/crypto';
 import { useLanguage } from '@/app/context/LanguageContext';
+import { useTheme } from '@/app/context/ThemeContext';
 import { translations } from '@/app/lib/translations';
 
 type SecretEntry = {
@@ -16,8 +17,10 @@ type SecretEntry = {
 export default function SetupPage() {
   const router = useRouter();
   const { createTestament, addSecret, upsertBeneficiary } = useTestament();
-  const { lang } = useLanguage();
+  const { lang, toggleLang } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const L = translations[lang].setup;
+  const LD = translations[lang].dashboardLayout;
   const STEPS = L.steps;
 
   const [step, setStep] = useState(0);
@@ -510,7 +513,23 @@ export default function SetupPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, position: 'relative' }}>
+      <div style={{ position: 'absolute', top: 20, right: 20, display: 'flex', gap: 8 }}>
+        <button
+          onClick={toggleTheme}
+          title={theme === 'dark' ? LD.lightMode : LD.darkMode}
+          style={{ border: '1px solid var(--border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-dim)', width: 32, height: 32, borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+        </button>
+        <button
+          onClick={toggleLang}
+          title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+          style={{ border: '1px solid var(--border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-dim)', height: 32, borderRadius: 7, padding: '0 10px', fontSize: 12, fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.06em' }}
+        >
+          {lang === 'fr' ? 'EN' : 'FR'}
+        </button>
+      </div>
       <div style={{ width: '100%', maxWidth: 560 }}>
         {/* Progress bar */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 32 }}>

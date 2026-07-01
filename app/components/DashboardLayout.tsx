@@ -3,6 +3,7 @@
 import React, { useEffect, useState, type ReactNode } from 'react';
 import Sidebar from './Sidebar';
 import { useLanguage } from '@/app/context/LanguageContext';
+import { useTheme } from '@/app/context/ThemeContext';
 import { translations } from '@/app/lib/translations';
 
 interface DashboardLayoutProps {
@@ -12,19 +13,13 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children, title, subtitle }: DashboardLayoutProps) {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const { theme, toggleTheme } = useTheme();
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { lang, toggleLang } = useLanguage();
   const L = translations[lang].dashboardLayout;
 
   useEffect(() => {
-    const saved = localStorage.getItem('sentinel_theme') as 'dark' | 'light' | null;
-    if (saved) {
-      setTheme(saved);
-      document.documentElement.setAttribute('data-theme', saved);
-    }
-
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -32,13 +27,6 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('sentinel_theme', next);
-  };
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>

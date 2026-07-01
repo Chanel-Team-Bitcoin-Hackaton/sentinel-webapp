@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { api } from '@/app/lib/api';
 import { useLanguage } from '@/app/context/LanguageContext';
+import { useTheme } from '@/app/context/ThemeContext';
 import { translations } from '@/app/lib/translations';
 
 type AuthStatus = 'LOADING' | 'PENDING' | 'CONFIRMED' | 'EXPIRED' | 'ERROR' | 'NETWORK_ERROR';
@@ -52,7 +53,9 @@ function QRCode({ value, size = 180 }: { value: string; size?: number }) {
 export default function LoginPage() {
   const router = useRouter();
   const { lang, toggleLang } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const L = translations[lang].login;
+  const LD = translations[lang].dashboardLayout;
 
   const [status, setStatus] = useState<AuthStatus>('LOADING');
   const [lnurl, setLnurl] = useState('');
@@ -163,7 +166,7 @@ export default function LoginPage() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#0D0D0D',
+        background: 'var(--bg)',
         padding: 24,
       }}
     >
@@ -182,36 +185,45 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 40 }}>
-          <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#F7931A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontFamily: 'Playfair Display, serif', fontWeight: 700, fontSize: 18, color: '#000' }}>S</span>
+          <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontFamily: 'Playfair Display, serif', fontWeight: 700, fontSize: 18, color: 'var(--btn-text)' }}>S</span>
           </div>
-          <span style={{ fontFamily: 'Playfair Display, serif', fontWeight: 600, fontSize: 24, color: '#F4F1EE', letterSpacing: '0.5px' }}>
+          <span style={{ fontFamily: 'Playfair Display, serif', fontWeight: 600, fontSize: 24, color: 'var(--text)', letterSpacing: '0.5px' }}>
             Sentinel
           </span>
         </div>
 
         {/* Heading */}
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic', fontSize: 28, fontWeight: 600, color: '#F4F1EE', margin: '0 0 12px', textAlign: 'center' }}>
+        <h1 style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic', fontSize: 28, fontWeight: 600, color: 'var(--text)', margin: '0 0 12px', textAlign: 'center' }}>
           {L.heading}
         </h1>
-        <p style={{ textAlign: 'center', fontSize: 15, color: '#A8A29B', margin: '0 0 32px', lineHeight: 1.5 }}>
+        <p style={{ textAlign: 'center', fontSize: 15, color: 'var(--text-dim)', margin: '0 0 32px', lineHeight: 1.5 }}>
           {L.subheading1}<br />{L.subheading2}
         </p>
 
-        {/* Language toggle */}
-        <button
-          onClick={toggleLang}
-          title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
-          style={{ position: 'absolute', top: 24, right: 24, border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', background: 'transparent', color: '#A8A29B', height: 32, borderRadius: 7, padding: '0 10px', fontSize: 12, fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.06em' }}
-        >
-          {lang === 'fr' ? 'EN' : 'FR'}
-        </button>
+        {/* Language & theme toggles */}
+        <div style={{ position: 'absolute', top: 24, right: 24, display: 'flex', gap: 8 }}>
+          <button
+            onClick={toggleTheme}
+            title={theme === 'dark' ? LD.lightMode : LD.darkMode}
+            style={{ border: '1px solid var(--border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-dim)', width: 32, height: 32, borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+          </button>
+          <button
+            onClick={toggleLang}
+            title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+            style={{ border: '1px solid var(--border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-dim)', height: 32, borderRadius: 7, padding: '0 10px', fontSize: 12, fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.06em' }}
+          >
+            {lang === 'fr' ? 'EN' : 'FR'}
+          </button>
+        </div>
 
         {/* Main Card */}
         <div
           style={{
-            background: '#161616',
-            border: '0.5px solid rgba(255,255,255,0.1)',
+            background: 'var(--panel)',
+            border: '0.5px solid var(--border)',
             borderRadius: 16,
             padding: 32,
             width: '100%',
@@ -224,18 +236,18 @@ export default function LoginPage() {
         >
           {status === 'LOADING' && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-              <div style={{ width: 32, height: 32, border: '3px solid rgba(247,147,26,0.2)', borderTopColor: '#F7931A', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-              <span style={{ color: '#A8A29B', fontSize: 14 }}>{L.generating}</span>
+              <div style={{ width: 32, height: 32, border: '3px solid rgba(var(--accent-rgb), 0.2)', borderTopColor: 'var(--accent-ink)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              <span style={{ color: 'var(--text-dim)', fontSize: 14 }}>{L.generating}</span>
             </div>
           )}
 
           {status === 'CONFIRMED' && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(52,211,153,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 28, color: '#34D399' }}>check_circle</span>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(var(--success-rgb), 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--success)' }}>check_circle</span>
               </div>
-              <span style={{ color: '#34D399', fontSize: 16, fontWeight: 600 }}>{L.confirmed}</span>
-              <span style={{ color: '#6F6A64', fontSize: 13 }}>{L.redirecting}</span>
+              <span style={{ color: 'var(--success)', fontSize: 16, fontWeight: 600 }}>{L.confirmed}</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>{L.redirecting}</span>
             </div>
           )}
 
@@ -251,7 +263,7 @@ export default function LoginPage() {
               </span>
               <button
                 onClick={generateChallenge}
-                style={{ background: '#F7931A', border: 'none', borderRadius: 8, padding: '12px 24px', color: '#000', fontWeight: 600, fontSize: 14, cursor: 'pointer', width: '100%' }}
+                style={{ background: 'var(--accent)', border: 'none', borderRadius: 8, padding: '12px 24px', color: 'var(--btn-text)', fontWeight: 600, fontSize: 14, cursor: 'pointer', width: '100%' }}
               >
                 {L.newQr}
               </button>
@@ -260,7 +272,7 @@ export default function LoginPage() {
 
           {status === 'PENDING' && (
             <>
-              <span style={{ fontSize: 13, color: '#A8A29B', marginBottom: 20, fontWeight: 500 }}>
+              <span style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: 20, fontWeight: 500 }}>
                 {L.scanPrompt}
               </span>
 
@@ -270,13 +282,13 @@ export default function LoginPage() {
               </div>
 
               {/* LNURL copyable */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0D0D0D', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px', width: '100%', marginBottom: 20 }}>
-                <span style={{ fontFamily: 'monospace', fontSize: 12, color: '#D8D4CE', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg)', border: '0.5px solid var(--border)', borderRadius: 8, padding: '10px 14px', width: '100%', marginBottom: 20 }}>
+                <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-soft)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: 12 }}>
                   {lnurl.substring(0, 26)}…
                 </span>
                 <button
                   onClick={copyToClipboard}
-                  style={{ background: 'transparent', border: 'none', color: copied ? '#34D399' : '#F7931A', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0, flexShrink: 0 }}
+                  style={{ background: 'transparent', border: 'none', color: copied ? 'var(--success)' : 'var(--accent-ink)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0, flexShrink: 0 }}
                 >
                   {copied ? L.copied : L.copy}
                 </button>
@@ -285,32 +297,32 @@ export default function LoginPage() {
               {/* Wallet links */}
               <div style={{ display: 'flex', gap: 10, marginBottom: 16, width: '100%' }}>
                 {[
-                  { name: 'Phoenix', color: '#F7931A', shape: 'circle' as const },
+                  { name: 'Phoenix', color: 'var(--accent-ink)', shape: 'circle' as const },
                   { name: 'Breez',   color: '#0066FF', shape: 'square' as const },
                   { name: 'Muun',    color: '#6B4EFF', shape: 'circle' as const },
                 ].map(({ name, color, shape }) => (
                   <a
                     key={name}
                     href={`lightning:${lnurl}`}
-                    style={{ flex: 1, border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '8px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: 'rgba(255,255,255,0.02)', textDecoration: 'none' }}
+                    style={{ flex: 1, border: '0.5px solid var(--border)', borderRadius: 20, padding: '8px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: 'var(--panel-inner)', textDecoration: 'none' }}
                   >
                     <div style={{ width: 12, height: 12, borderRadius: shape === 'circle' ? '50%' : 3, background: color, flexShrink: 0 }} />
-                    <span style={{ fontSize: 12, color: '#D8D4CE', fontWeight: 500 }}>{name}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-soft)', fontWeight: 500 }}>{name}</span>
                   </a>
                 ))}
               </div>
 
-              <span style={{ fontSize: 12, color: '#6F6A64', marginBottom: 24 }}>{L.anyWallet}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 24 }}>{L.anyWallet}</span>
 
               {/* Polling indicator */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F7931A', animation: 'sigpulse 2s infinite', boxShadow: '0 0 8px rgba(247,147,26,0.6)' }} />
-                <span style={{ fontSize: 13, color: '#F7931A', fontWeight: 500 }}>{L.waitingSignature}</span>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', animation: 'sigpulse 2s infinite', boxShadow: '0 0 8px rgba(var(--accent-rgb), 0.6)' }} />
+                <span style={{ fontSize: 13, color: 'var(--accent-ink)', fontWeight: 500 }}>{L.waitingSignature}</span>
               </div>
 
               {/* Dev / demo button */}
-              <div style={{ width: '100%', borderTop: '0.5px solid rgba(255,255,255,0.07)', paddingTop: 20 }}>
-                <div style={{ fontSize: 11, color: '#4A453F', textAlign: 'center', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'monospace' }}>
+              <div style={{ width: '100%', borderTop: '0.5px solid var(--border)', paddingTop: 20 }}>
+                <div style={{ fontSize: 11, color: 'var(--text-faint)', textAlign: 'center', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'monospace' }}>
                   {L.demoMode}
                 </div>
                 <button
@@ -320,9 +332,9 @@ export default function LoginPage() {
                     width: '100%',
                     padding: '11px 0',
                     borderRadius: 10,
-                    border: '1px dashed rgba(247,147,26,0.35)',
-                    background: simulating ? 'rgba(247,147,26,0.04)' : 'rgba(247,147,26,0.06)',
-                    color: simulating ? '#6F6A64' : '#F7931A',
+                    border: '1px dashed rgba(var(--accent-rgb), 0.35)',
+                    background: simulating ? 'rgba(var(--accent-rgb), 0.04)' : 'rgba(var(--accent-rgb), 0.06)',
+                    color: simulating ? 'var(--text-muted)' : 'var(--accent-ink)',
                     fontSize: 13,
                     fontWeight: 600,
                     cursor: simulating ? 'not-allowed' : 'pointer',
@@ -334,7 +346,7 @@ export default function LoginPage() {
                   }}
                 >
                   {simulating
-                    ? <><span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid rgba(247,147,26,0.3)', borderTopColor: '#F7931A', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> {L.connecting}</>
+                    ? <><span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid rgba(var(--accent-rgb), 0.3)', borderTopColor: 'var(--accent-ink)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> {L.connecting}</>
                     : <><span className="material-symbols-outlined" style={{ fontSize: 16 }}>bolt</span> {L.simulateScan}</>
                   }
                 </button>
@@ -345,16 +357,16 @@ export default function LoginPage() {
 
         {/* Security notice */}
         <div style={{ display: 'flex', gap: 10, marginTop: 28, padding: '0 8px', alignItems: 'flex-start' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#6F6A64', marginTop: 1 }}>lock</span>
-          <p style={{ fontSize: 12, color: '#6F6A64', lineHeight: 1.5, margin: 0 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--text-muted)', marginTop: 1 }}>lock</span>
+          <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>
             {L.securityNotice}
           </p>
         </div>
 
         <div style={{ marginTop: 32 }}>
-          <Link href="/signup" style={{ fontSize: 13, color: '#A8A29B', textDecoration: 'none' }}>
+          <Link href="/signup" style={{ fontSize: 13, color: 'var(--text-dim)', textDecoration: 'none' }}>
             {L.noAccount}{' '}
-            <span style={{ color: '#F7931A', fontWeight: 600 }}>{L.createAccount}</span>
+            <span style={{ color: 'var(--accent-ink)', fontWeight: 600 }}>{L.createAccount}</span>
           </Link>
         </div>
       </div>
