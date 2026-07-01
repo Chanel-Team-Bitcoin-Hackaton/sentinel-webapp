@@ -67,12 +67,15 @@ export interface AuthResponse {
 
 // Global Configuration
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true' || true; // Set to true by default for seamless hackathon testing
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API !== 'false';
 
-// Get token from local storage
+// Get token from local storage (falls back to cookie for LNURL login)
 function getAuthToken(): string | null {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('sentinel_jwt_token');
+    const local = localStorage.getItem('sentinel_jwt_token');
+    if (local) return local;
+    const match = document.cookie.match(/(^| )sentinel_session=([^;]+)/);
+    return match ? match[2] : null;
   }
   return null;
 }
@@ -82,8 +85,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers || {});
   headers.set('Content-Type', 'application/json');
 
+  const token = getAuthToken();
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+
   const response = await fetch(`${API_URL}${path}`, {
-    credentials: 'include',
     ...options,
     headers,
   });
@@ -167,6 +172,10 @@ export const api = {
         db.tokens[token] = userId;
         saveMockDB(db);
 
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('sentinel_jwt_token', token);
+        }
+
         return { token, nsec: user.nsec, user };
       }
       return request<AuthResponse>('/api/auth/signup', {
@@ -188,7 +197,8 @@ export const api = {
         db.tokens[token] = userEntry.id;
         saveMockDB(db);
 
-        if (typeof document !== 'undefined') {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('sentinel_jwt_token', token);
           document.cookie = `sentinel_session=${token}; path=/; max-age=3600`;
         }
 
@@ -222,38 +232,46 @@ export const api = {
         await new Promise((resolve) => setTimeout(resolve, 400));
         const db = getMockDB();
         const current = db.tokens[k1];
-        
-        if (current === 'PENDING') {
-          // Simulate user scanning after a few polls
-          if (Math.random() > 0.7) {
-            db.tokens[k1] = 'CONFIRMED';
-            saveMockDB(db);
-            
-            const userId = 'usr_mock_123';
-            const user: User = { id: userId, email: 'testateur@sentinel.btc', createdAt: new Date().toISOString() };
-            db.users['testateur@sentinel.btc'] = { ...user, passwordHash: '' };
-            if (typeof document !== 'undefined') {
-              document.cookie = `sentinel_session=mock_token; path=/; max-age=3600`;
-            }
-            return { status: 'CONFIRMED', user };
-          }
-          return { status: 'PENDING' };
-        }
-        
+
+        if (current === 'PENDING') return { status: 'PENDING' };
+
         if (current === 'CONFIRMED') {
           const user: User = { id: 'usr_mock_123', email: 'testateur@sentinel.btc', createdAt: new Date().toISOString() };
           return { status: 'CONFIRMED', user };
         }
-        
+
         return { status: 'ERROR' };
       }
-      return request<{ status: 'PENDING' | 'CONFIRMED' | 'ERROR'; user?: User }>(`/api/auth/lnurl-status?k1=${k1}`);
+      const result = await request<{ status: string; token?: string }>(`/api/auth/lnurl-status?k1=${k1}`);
+      if (result.token && typeof window !== 'undefined') {
+        localStorage.setItem('sentinel_jwt_token', result.token);
+        document.cookie = `sentinel_session=${result.token}; path=/; max-age=2592000`;
+      }
+      return { status: result.status as 'PENDING' | 'CONFIRMED' | 'ERROR' };
+    },
+
+    devConfirmLnurl: async (k1: string): Promise<{ user: User }> => {
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      const db = getMockDB();
+      const userId = 'usr_mock_123';
+      const sessionToken = 'jwt_lnurl_mock_' + userId;
+      db.tokens[k1] = 'CONFIRMED';
+      db.tokens[sessionToken] = userId;
+      const user: User = { id: userId, email: 'testateur@sentinel.btc', createdAt: new Date().toISOString() };
+      db.users['testateur@sentinel.btc'] = { ...user, passwordHash: '' };
+      saveMockDB(db);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sentinel_jwt_token', sessionToken);
+        document.cookie = `sentinel_session=${sessionToken}; path=/; max-age=3600`;
+      }
+      return { user };
     },
 
     logout: async (): Promise<void> => {
       if (USE_MOCK) {
         await new Promise((resolve) => setTimeout(resolve, 300));
-        if (typeof document !== 'undefined') {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('sentinel_jwt_token');
           document.cookie = `sentinel_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
         }
         return;
@@ -545,6 +563,29 @@ export const api = {
         return { paid: true, preimage };
       }
       return request<{ paid: boolean; preimage: string | null }>(`/api/checkins/status/${paymentHash}`);
+    },
+  },
+
+  // ─── Subscription ───
+  subscription: {
+    requestInvoice: async (): Promise<{ payment_request: string; payment_hash: string; amountSats: number }> => {
+      if (USE_MOCK) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        const paymentHash = 'sub_hash_' + Math.random().toString(16).substring(2, 12);
+        const payReq = 'lnbc21000n1p0...' + Math.random().toString(36).substring(2, 15);
+        return { payment_request: payReq, payment_hash: paymentHash, amountSats: 21000 };
+      }
+      return request<{ payment_request: string; payment_hash: string; amountSats: number }>('/api/subscription/invoice', {
+        method: 'POST',
+      });
+    },
+
+    checkStatus: async (paymentHash: string): Promise<{ paid: boolean }> => {
+      if (USE_MOCK) {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        return { paid: true };
+      }
+      return request<{ paid: boolean }>(`/api/subscription/status/${paymentHash}`);
     },
   },
 

@@ -1,22 +1,29 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+const PROTECTED = ['/dashboard', '/setup', '/subscription'];
+const AUTH_ONLY = ['/login']; // redirect to /dashboard when already authenticated
+
 export function middleware(request: NextRequest) {
-  // Check for the session cookie
+  const { pathname } = request.nextUrl;
   const sessionCookie = request.cookies.get('sentinel_session');
 
-  // If the user is trying to access a protected route
-  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+  // Racine — redirige selon l'état de session
+  if (pathname === '/') {
+    const dest = sessionCookie ? '/dashboard' : '/login';
+    return NextResponse.redirect(new URL(dest, request.url));
+  }
+
+  // Protected routes — require session
+  if (PROTECTED.some((p) => pathname.startsWith(p))) {
     if (!sessionCookie) {
-      // Redirect to login if not authenticated
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
 
-  // If the user is trying to access login page while authenticated
-  if (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname === '/') {
+  // Auth-only pages — redirect to dashboard if already logged in
+  if (AUTH_ONLY.some((p) => pathname.startsWith(p))) {
     if (sessionCookie) {
-      // Redirect to dashboard if already authenticated
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
   }

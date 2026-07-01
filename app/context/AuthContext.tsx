@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { api, type User } from '@/app/lib/api';
+import { api, type User, type AuthResponse } from '@/app/lib/api';
 
 interface AuthState {
   user: User | null;
@@ -11,10 +11,8 @@ interface AuthState {
 }
 
 interface AuthContextValue extends AuthState {
-  // Only exposing logout and clearError since login is handled natively in page.tsx via LNURL
-  // Wait, I will keep login here if it's used elsewhere, but for LNURL, we might not need context for login.
-  // We'll keep login just in case but LNURL is the main way. Actually, LNURL will just redirect to dashboard which triggers a reload or re-auth.
-  // Wait, I will expose a `setUser` or `refreshSession` so LNURL can set the user.
+  signup: (email: string, password: string) => Promise<AuthResponse>;
+  login: (email: string, password: string) => Promise<AuthResponse>;
   refreshSession: () => Promise<void>;
   logout: () => void;
   clearError: () => void;
@@ -29,6 +27,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: false,
     error: null,
   });
+
+  const signup = useCallback(async (email: string, password: string): Promise<AuthResponse> => {
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    try {
+      const result = await api.auth.signup(email, password);
+      setState({ user: result.user, isLoading: false, isAuthenticated: true, error: null });
+      return result;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erreur lors de la création du compte.';
+      setState((prev) => ({ ...prev, isLoading: false, error: message }));
+      throw err;
+    }
+  }, []);
+
+  const login = useCallback(async (email: string, password: string): Promise<AuthResponse> => {
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    try {
+      const result = await api.auth.login(email, password);
+      setState({ user: result.user, isLoading: false, isAuthenticated: true, error: null });
+      return result;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Email ou mot de passe incorrect.';
+      setState((prev) => ({ ...prev, isLoading: false, error: message }));
+      throw err;
+    }
+  }, []);
 
   const refreshSession = useCallback(async () => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
@@ -77,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...state, refreshSession, logout, clearError }}>
+    <AuthContext.Provider value={{ ...state, signup, login, refreshSession, logout, clearError }}>
       {children}
     </AuthContext.Provider>
   );
